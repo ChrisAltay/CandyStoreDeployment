@@ -10,7 +10,7 @@ from django.contrib import messages
 User = get_user_model()
 
 
-def register(request):    # Register new user
+def register(request):  # Register new user
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
@@ -31,16 +31,12 @@ def register(request):    # Register new user
             return render(request, "accounts/register.html")
 
         # Create user
-        user = User.objects.create_user(
-            username=username,
-            password=password
-        )
+        user = User.objects.create_user(username=username, password=password)
 
         messages.success(request, "Account created! Please log in.")
         return redirect("login")
 
     return render(request, "accounts/register.html")
-
 
 
 def login_view(request):
@@ -62,7 +58,6 @@ def login_view(request):
             messages.error(request, "Invalid username or password.")
 
     return render(request, "accounts/login.html")
-
 
 
 def logout_view(request):
