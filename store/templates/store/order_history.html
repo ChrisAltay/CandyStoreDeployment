@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    .status-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.9rem;
+    }
+
+    .status-delivered {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto;">
+    <h1 style="color: #ff6b9d; margin-bottom: 2rem;">Order History</h1>
+
+    {% if orders %}
+    <div style="background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow: hidden;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Items</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>#{{ order.transaction_id|truncatechars:8 }}</td>
+                    <td>{{ order.created_at|date:"M d, Y H:i" }}</td>
+                    <td>${{ order.total_price }}</td>
+                    <td>{{ order.items.count }} items</td>
+                    <td>
+                        <span
+                            class="status-badge {% if order.status == 'Delivered' %}status-delivered{% else %}status-pending{% endif %}">
+                            {{ order.status }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'track_order' order.id %}" class="btn"
+                            style="padding: 0.25rem 0.5rem; font-size: 0.9rem;">Track</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; background: white; border-radius: 8px;">
+        <p style="font-size: 1.2rem; color: #666;">You haven't placed any orders yet.</p>
+        <a href="{% url 'home' %}" class="btn" style="margin-top: 1rem;">Start Shopping</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
