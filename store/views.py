@@ -49,7 +49,11 @@ def cart_detail(request):
     return render(request, "store/cart.html", {"cart": cart})
 
 
+from django.contrib.auth.decorators import login_required
+
+
 @require_POST
+@login_required(login_url="login")
 def order_create(request):
     cart = Cart(request)
     if len(cart) > 0:

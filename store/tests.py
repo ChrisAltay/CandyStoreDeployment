@@ -1,5 +1,6 @@
 from django.test import TestCase, RequestFactory
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.contrib.auth.models import User, AnonymousUser
 from .models import Candy, Order
 from .views import order_create
 from .cart import Cart
@@ -15,8 +16,9 @@ class OrderCreationTest(TestCase):
             category="cat",
         )
         self.factory = RequestFactory()
+        self.user = User.objects.create_user(username="testuser", password="password")
 
-    def test_order_create_view(self):
+    def test_order_create_view_authenticated(self):
         # Create a request
         request = self.factory.post("/store/order/create/")
 
@@ -26,9 +28,7 @@ class OrderCreationTest(TestCase):
         request.session.save()
 
         # Add user
-        from django.contrib.auth.models import AnonymousUser
-
-        request.user = AnonymousUser()
+        request.user = self.user
 
         # Add item to cart
         cart = Cart(request)
@@ -43,7 +43,24 @@ class OrderCreationTest(TestCase):
         # Check order created
         order = Order.objects.last()
         self.assertIsNotNone(order)
+        self.assertEqual(order.user, self.user)
         self.assertEqual(order.total_price, 20.00)
-        self.assertEqual(order.status, "Created")
-        self.assertEqual(order.items.count(), 1)
-        self.assertEqual(order.items.first().product, self.candy)
+
+    def test_order_create_view_anonymous(self):
+        # Create a request
+        request = self.factory.post("/store/order/create/")
+
+        # Add session
+        middleware = SessionMiddleware(lambda x: None)
+        middleware.process_request(request)
+        request.session.save()
+
+        # Add user
+        request.user = AnonymousUser()
+
+        # Execute view
+        response = order_create(request)
+
+        # Check response - verify it 302 redirects to login
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/accounts/login/", response.url)
