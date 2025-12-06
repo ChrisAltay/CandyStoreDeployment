@@ -3,36 +3,47 @@
 {% block title %}Register - Keanu's Candy Store{% endblock %}
 
 {% block content %}
-<div style="max-width: 400px; margin: 0 auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+<div
+    style="max-width: 400px; margin: 0 auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
     <h2>🍬 Register</h2>
-    
+
     {% if messages %}
-        {% for message in messages %}
-            {% if message.tags == 'error' %}
-                <div style="background-color: #f8d7da; color: #721c24; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; border: 1px solid #f5c6cb;">
-                    {{ message }}
-                </div>
-            {% elif message.tags == 'success' %}
-                <div style="background-color: #d4edda; color: #155724; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; border: 1px solid #c3e6cb;">
-                    {{ message }}
-                </div>
-            {% endif %}
-        {% endfor %}
+    {% for message in messages %}
+    {% if message.tags == 'error' %}
+    <div
+        style="background-color: #f8d7da; color: #721c24; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; border: 1px solid #f5c6cb;">
+        {{ message }}
+    </div>
+    {% elif message.tags == 'success' %}
+    <div
+        style="background-color: #d4edda; color: #155724; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; border: 1px solid #c3e6cb;">
+        {{ message }}
+    </div>
     {% endif %}
-    
+    {% endfor %}
+    {% endif %}
+
     <form method="post" action="{% url 'register' %}">
         {% csrf_token %}
         <div class="form-group">
             <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required autofocus style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+            <input type="text" id="username" name="username" required autofocus
+                style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required
+                style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
         </div>
         <div class="form-group">
             <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+            <input type="password" id="password" name="password" required
+                style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
         </div>
         <div class="form-group">
             <label for="password2">Confirm Password:</label>
-            <input type="password" id="password2" name="password2" required style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+            <input type="password" id="password2" name="password2" required
+                style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
         </div>
         <button type="submit" class="btn" style="width: 100%;">Register</button>
     </form>
@@ -41,4 +52,3 @@
     </p>
 </div>
 {% endblock %}
-
