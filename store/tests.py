@@ -49,7 +49,7 @@ class OrderCreationTest(TestCase):
     def test_order_create_view_anonymous(self):
         # Create a request
         request = self.factory.post("/store/order/create/")
-        
+
         # Add session
         middleware = SessionMiddleware(lambda x: None)
         middleware.process_request(request)
