@@ -13,6 +13,7 @@ User = get_user_model()
 def register(request):  # Register new user
     if request.method == "POST":
         username = request.POST.get("username")
+        email = request.POST.get("email")
         password = request.POST.get("password")
         password2 = request.POST.get("password2")
 
@@ -31,7 +32,9 @@ def register(request):  # Register new user
             return render(request, "accounts/register.html")
 
         # Create user
-        user = User.objects.create_user(username=username, password=password)
+        user = User.objects.create_user(
+            username=username, email=email, password=password
+        )
 
         messages.success(request, "Account created! Please log in.")
         return redirect("login")
