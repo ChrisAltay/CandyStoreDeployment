@@ -88,8 +88,8 @@ def order_history(request):
 def order_detail(request, order_id):
     """Order detail page"""
     order = get_object_or_404(Order, id=order_id, user=request.user)
-    
+
     # Simulate status updates
     order.update_status_based_on_time()
-    
+
     return render(request, "store/order_detail.html", {"order": order})
