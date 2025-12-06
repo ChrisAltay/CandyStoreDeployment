@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Order Created - Keanu's Candy Store{% endblock %}
+
+{% block content %}
+<div class="container" style="text-align: center; padding: 3rem;">
+    <h1 style="color: #ff6b9d;">Thank you for your order!</h1>
+    <p style="font-size: 1.2rem; margin: 1rem 0;">Your order <strong>#{{ order.id }}</strong> has been successfully created.</p>
+    <p>Total: ${{ order.total_price }}</p>
+    
+    <div style="margin-top: 2rem;">
+        <a href="{% url 'home' %}" class="btn" style="padding: 0.75rem 1.5rem; font-size: 1.1rem;">Continue Shopping</a>
+    </div>
+</div>
+{% endblock %}
