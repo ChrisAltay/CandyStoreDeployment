@@ -73,3 +73,23 @@ def order_create(request):
         cart.clear()
         return render(request, "store/order_created.html", {"order": order})
     return redirect("cart_detail")
+
+
+@login_required(login_url="login")
+def order_history(request):
+    """List of orders for the current user"""
+    orders = Order.objects.filter(user=request.user).order_by("-created_at")
+    for order in orders:
+        order.update_status_based_on_time()
+    return render(request, "store/order_list.html", {"orders": orders})
+
+
+@login_required(login_url="login")
+def order_detail(request, order_id):
+    """Order detail page"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    # Simulate status updates
+    order.update_status_based_on_time()
+
+    return render(request, "store/order_detail.html", {"order": order})
