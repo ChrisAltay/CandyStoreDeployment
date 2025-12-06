@@ -5,15 +5,18 @@
 {% block content %}
 <div style="max-width: 800px; margin: 0 auto;">
     <h2>🍬 My Account</h2>
-    <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+    <div
+        style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 2rem;">
         <p><strong>Username:</strong> {{ user.username }}</p>
         <p><strong>Email:</strong> {{ user.email|default:"Not provided" }}</p>
     </div>
-    
-    <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center;">
+
+    <div
+        style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center;">
         <p style="font-size: 1.1rem; color: #6c757d; margin-bottom: 1rem;">Welcome to your account page!</p>
+        <a href="{% url 'order_history' %}" class="btn" style="background-color: #6c757d; margin-right: 1rem;">View My
+            Orders 📦</a>
         <a href="{% url 'home' %}" class="btn">Browse Candies 🍬</a>
     </div>
 </div>
 {% endblock %}
-
