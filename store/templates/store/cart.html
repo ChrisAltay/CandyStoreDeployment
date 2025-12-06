@@ -68,7 +68,10 @@
     </div>
     <div style="margin-top: 2rem; text-align: right;">
         <a href="{% url 'home' %}" class="btn btn-secondary" style="margin-right: 1rem;">Continue Shopping</a>
-        <a href="#" class="btn" style="font-size: 1.2rem;">Proceed to Checkout</a>
+        <form action="{% url 'order_create' %}" method="post" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn" style="font-size: 1.2rem; cursor: pointer;">Proceed to Checkout</button>
+        </form>
     </div>
     {% else %}
     <div style="text-align: center; padding: 3rem; background: white; border-radius: 8px;">
