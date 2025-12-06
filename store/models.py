@@ -26,16 +26,30 @@ class Candy(models.Model):
 class Order(models.Model):
     """Order model"""
 
+    STATUS_CREATED = "Created"
+    STATUS_SHIPPED = "Shipped"
+    STATUS_DELIVERED = "Delivered"
+
+    STATUS_CHOICES = (
+        (STATUS_CREATED, "Created"),
+        (STATUS_SHIPPED, "Shipped"),
+        (STATUS_DELIVERED, "Delivered"),
+    )
+
     user = models.ForeignKey(
         "auth.User", on_delete=models.CASCADE, null=True, blank=True
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    status = models.CharField(max_length=50, default="Created")
+    shipped_at = models.DateTimeField(null=True, blank=True)
+    delivered_at = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(
+        max_length=50, choices=STATUS_CHOICES, default=STATUS_CREATED
+    )
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     def __str__(self):
-        return f"Order {self.id}"
+        return f"Order {self.id} - {self.status}"
 
 
 class OrderItem(models.Model):
