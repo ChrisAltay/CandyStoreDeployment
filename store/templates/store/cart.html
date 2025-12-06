@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Cart - Keanu's Candy Store{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 style="color: #ff6b9d; margin-bottom: 2rem;">Shopping Cart</h1>
+
+    {% if cart|length > 0 %}
+    <div style="background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow: hidden;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total Price</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart %}
+                {% with product=item.product %}
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center;">
+                            {% if product.image_url %}
+                            <img src="{{ product.image_url }}" alt="{{ product.name }}"
+                                style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-right: 1rem;">
+                            {% endif %}
+                            <a href="{% url 'candy_detail' product.id %}"
+                                style="color: #333; text-decoration: none; font-weight: bold;">{{ product.name }}</a>
+                        </div>
+                    </td>
+                    <td>
+                        <form action="{% url 'cart_add' product.id %}" method="post"
+                            style="display: flex; align-items: center;">
+                            {% csrf_token %}
+                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1"
+                                max="{{ product.stock }}"
+                                style="width: 60px; padding: 0.25rem; margin-right: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                            <input type="hidden" name="override" value="True">
+                            <button type="submit" class="btn"
+                                style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Update</button>
+                        </form>
+                    </td>
+                    <td>${{ item.price }}</td>
+                    <td>${{ item.total_price }}</td>
+                    <td>
+                        <form action="{% url 'cart_remove' product.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary"
+                                style="padding: 0.25rem 0.5rem; font-size: 0.8rem; background-color: #dc3545;">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endwith %}
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr style="background-color: #f9f9f9; font-weight: bold;">
+                    <td colspan="3" style="text-align: right;">Total:</td>
+                    <td>${{ cart.get_total_price }}</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div style="margin-top: 2rem; text-align: right;">
+        <a href="{% url 'home' %}" class="btn btn-secondary" style="margin-right: 1rem;">Continue Shopping</a>
+        <a href="#" class="btn" style="font-size: 1.2rem;">Proceed to Checkout</a>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; background: white; border-radius: 8px;">
+        <p style="font-size: 1.2rem; color: #666;">Your cart is empty.</p>
+        <a href="{% url 'home' %}" class="btn" style="margin-top: 1rem;">Start Shopping</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
