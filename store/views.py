@@ -2,8 +2,10 @@
 Store views for browsing candies
 """
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
+from django.views.decorators.http import require_POST
 from .models import Candy
+from .cart import Cart
 
 
 def home(request):
@@ -22,3 +24,26 @@ def candy_detail(request, candy_id):
         "candy": candy,
     }
     return render(request, "store/candy_detail.html", context)
+
+
+@require_POST
+def cart_add(request, candy_id):
+    cart = Cart(request)
+    candy = get_object_or_404(Candy, id=candy_id)
+    quantity = int(request.POST.get("quantity", 1))
+    override = request.POST.get("override", False)
+    cart.add(product=candy, quantity=quantity, override_quantity=override)
+    return redirect("cart_detail")
+
+
+@require_POST
+def cart_remove(request, candy_id):
+    cart = Cart(request)
+    candy = get_object_or_404(Candy, id=candy_id)
+    cart.remove(candy)
+    return redirect("cart_detail")
+
+
+def cart_detail(request):
+    cart = Cart(request)
+    return render(request, "store/cart.html", {"cart": cart})
