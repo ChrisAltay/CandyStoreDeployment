@@ -21,7 +21,5 @@ class CheckoutForm(forms.Form):
         label="Credit Card Number (Mock)",
         help_text="For testing, use any 16 digit number",
     )
-    expiry = forms.CharField(
-        max_length=5, label="Expiry (MM/YY)", initial="12/26"
-    )
+    expiry = forms.CharField(max_length=5, label="Expiry (MM/YY)", initial="12/26")
     cvv = forms.CharField(max_length=4, label="CVV")
