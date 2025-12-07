@@ -33,7 +33,8 @@
                         class="{% if order.status == 'Created' or order.status == 'Shipped' or order.status == 'Delivered' %}text-green-600 font-bold{% endif %}">
                         Created
                     </div>
-                    <div class="text-xs font-normal text-gray-500 mt-1">{{ order.created_at|date:"M d, g:i A" }}</div>
+                    <div class="text-xs font-normal text-gray-500 mt-1 local-time"
+                        data-timestamp="{{ order.created_at|date:'c' }}">{{ order.created_at|date:"M d, g:i A" }}</div>
                 </div>
 
                 <!-- Shipped Step -->
@@ -46,7 +47,8 @@
                         Shipped
                     </div>
                     {% if order.shipped_at %}
-                    <div class="text-xs font-normal text-gray-500 mt-1">{{ order.shipped_at|date:"M d, g:i A" }}</div>
+                    <div class="text-xs font-normal text-gray-500 mt-1 local-time"
+                        data-timestamp="{{ order.shipped_at|date:'c' }}">{{ order.shipped_at|date:"M d, g:i A" }}</div>
                     {% else %}
                     <div class="text-xs font-normal text-gray-400 mt-1">Pending</div>
                     {% endif %}
@@ -61,7 +63,9 @@
                         Delivered
                     </div>
                     {% if order.delivered_at %}
-                    <div class="text-xs font-normal text-gray-500 mt-1">{{ order.delivered_at|date:"M d, g:i A" }}</div>
+                    <div class="text-xs font-normal text-gray-500 mt-1 local-time"
+                        data-timestamp="{{ order.delivered_at|date:'c' }}">{{ order.delivered_at|date:"M d, g:i A" }}
+                    </div>
                     {% else %}
                     <div class="text-xs font-normal text-gray-400 mt-1">Pending</div>
                     {% endif %}
@@ -103,7 +107,8 @@
     <!-- Tracking Map -->
     <div class="bg-white rounded-lg shadow-md p-6">
         <h2 class="text-xl font-semibold mb-4 text-gray-700">Live Tracking Simulation</h2>
-        <div id="tracking-map" style="height: 300px; border-radius: 8px; z-index: 1;"></div>
+        <p class="text-sm text-gray-500 mb-4">Visualizing package journey from Distribution Center to Customer Zone.</p>
+        <div id="tracking-map" style="height: 300px; border-radius: 8px; z-index: 1; border: 2px solid #f3f4f6;"></div>
     </div>
 </div>
 
@@ -113,6 +118,15 @@
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Convert to Local Time
+        document.querySelectorAll('.local-time').forEach(el => {
+            const dateStr = el.getAttribute('data-timestamp');
+            if (dateStr) {
+                const date = new Date(dateStr);
+                el.textContent = date.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+            }
+        });
+
         // Factory: New York, Destination: Boston (Example)
         const factoryCoords = [40.7128, -74.0060];
         const destCoords = [42.3601, -71.0589];
@@ -141,7 +155,7 @@
         }
 
         // Add markers
-        var factoryMarker = L.marker(factoryCoords).addTo(map).bindPopup('Candy Factory');
+        var factoryMarker = L.marker(factoryCoords).addTo(map).bindPopup('Distribution Center');
         var destMarker = L.marker(destCoords).addTo(map).bindPopup('Delivery Address');
 
         // Truck marker (styled circle for simplicity or use custom icon)
