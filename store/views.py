@@ -52,6 +52,9 @@ def cart_detail(request):
 from django.contrib.auth.decorators import login_required
 
 
+from django.contrib import messages
+
+
 @require_POST
 @login_required(login_url="login")
 def order_create(request):
@@ -61,6 +64,15 @@ def order_create(request):
             user = request.user
         else:
             user = None
+
+        # Verify stock first
+        for item in cart:
+            if item["product"].stock < item["quantity"]:
+                messages.error(
+                    request,
+                    f"Not enough stock for {item['product'].name}. Only {item['product'].stock} left.",
+                )
+                return redirect("cart_detail")
 
         order = Order.objects.create(user=user, total_price=cart.get_total_price())
         for item in cart:
