@@ -9,10 +9,30 @@
     <p><strong>Description:</strong> {{ candy.description }}</p>
     <div class="price" style="font-size: 2rem; margin: 1rem 0;">${{ candy.price|floatformat:2 }}</div>
     <p><strong>Stock Available:</strong> {{ candy.stock }}</p>
-    
+
+    {% if candy.stock > 0 %}
+    <form action="{% url 'cart_add' candy.id %}" method="post" style="margin-top: 2rem;">
+        {% csrf_token %}
+        <div style="margin-bottom: 1rem;">
+            <label for="quantity" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Quantity:</label>
+            <input type="number" name="quantity" id="quantity" value="1" min="1" max="{{ candy.stock }}"
+                style="width: 100px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+            <span style="margin-left: 0.5rem; color: #666;">Max: {{ candy.stock }}</span>
+        </div>
+        <button type="submit" class="btn"
+            style="background-color: #28a745; color: white; padding: 0.75rem 2rem; font-size: 1.1rem;">
+            Add to Cart
+        </button>
+    </form>
+    {% else %}
+    <div
+        style="margin-top: 2rem; padding: 1rem; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; color: #721c24;">
+        <strong>Out of Stock</strong> - This item is currently unavailable.
+    </div>
+    {% endif %}
+
     <div style="margin-top: 2rem;">
         <a href="{% url 'home' %}" class="btn btn-secondary">Back to Store</a>
     </div>
 </div>
 {% endblock %}
-

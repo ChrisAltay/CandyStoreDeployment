@@ -34,12 +34,16 @@
         <div class="stock">Stock: {{ candy.stock }}</div>
         <div style="margin-top: 1rem;">
             <a href="{% url 'candy_detail' candy.id %}" class="btn">View Details</a>
+            {% if candy.stock > 0 %}
             <form action="{% url 'cart_add' candy.id %}" method="post"
                 style="display: inline-block; margin-left: 0.5rem;">
                 {% csrf_token %}
                 <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn" style="background-color: #28a745;">Add to Cart</button>
             </form>
+            {% else %}
+            <button class="btn" style="background-color: #6c757d; cursor: not-allowed;" disabled>Out of Stock</button>
+            {% endif %}
         </div>
     </div>
     {% empty %}
