@@ -11,31 +11,59 @@
     </div>
 
     <!-- Status Tracker -->
+
     <div class="bg-white rounded-lg shadow-md p-8 mb-8">
         <h2 class="text-xl font-semibold mb-6 text-gray-700">Order Status</h2>
         <div class="relative">
-            <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-200">
-                <div style="width: {% if order.status == 'Created' %}33%{% elif order.status == 'Shipped' %}66%{% elif order.status == 'Delivered' %}100%{% endif %}"
-                    class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-600 transition-all duration-500">
+            <!-- Progress Bar Background -->
+            <div class="overflow-hidden h-3 mb-4 text-xs flex rounded-full bg-gray-200">
+                <div style="width: {% if order.status == 'Created' %}10%{% elif order.status == 'Shipped' %}50%{% elif order.status == 'Delivered' %}100%{% endif %}"
+                    class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-green-500 transition-all duration-1000 ease-in-out">
                 </div>
             </div>
-            <div class="flex justify-between text-sm text-gray-600">
-                <div
-                    class="text-center {% if order.status == 'Created' or order.status == 'Shipped' or order.status == 'Delivered' %}text-indigo-600 font-bold{% endif %}">
-                    <div>Created</div>
-                    <div class="text-xs font-normal text-gray-500">{{ order.created_at|date:"M d, H:i" }}</div>
+
+            <!-- Steps -->
+            <div class="flex justify-between text-sm text-gray-600 relative" style="top: -28px;">
+                <!-- Created Step -->
+                <div class="text-center flex flex-col items-center" style="width: 33%;">
+                    <div
+                        class="w-4 h-4 rounded-full border-2 border-white {% if order.status == 'Created' or order.status == 'Shipped' or order.status == 'Delivered' %}bg-green-500{% else %}bg-gray-300{% endif %} shadow-sm mb-2">
+                    </div>
+                    <div
+                        class="{% if order.status == 'Created' or order.status == 'Shipped' or order.status == 'Delivered' %}text-green-600 font-bold{% endif %}">
+                        Created
+                    </div>
+                    <div class="text-xs font-normal text-gray-500 mt-1">{{ order.created_at|date:"M d, g:i A" }}</div>
                 </div>
-                <div
-                    class="text-center {% if order.status == 'Shipped' or order.status == 'Delivered' %}text-indigo-600 font-bold{% endif %}">
-                    <div>Shipped</div>
+
+                <!-- Shipped Step -->
+                <div class="text-center flex flex-col items-center" style="width: 33%;">
+                    <div
+                        class="w-4 h-4 rounded-full border-2 border-white {% if order.status == 'Shipped' or order.status == 'Delivered' %}bg-green-500{% else %}bg-gray-300{% endif %} shadow-sm mb-2">
+                    </div>
+                    <div
+                        class="{% if order.status == 'Shipped' or order.status == 'Delivered' %}text-green-600 font-bold{% endif %}">
+                        Shipped
+                    </div>
                     {% if order.shipped_at %}
-                    <div class="text-xs font-normal text-gray-500">{{ order.shipped_at|date:"M d, H:i" }}</div>
+                    <div class="text-xs font-normal text-gray-500 mt-1">{{ order.shipped_at|date:"M d, g:i A" }}</div>
+                    {% else %}
+                    <div class="text-xs font-normal text-gray-400 mt-1">Pending</div>
                     {% endif %}
                 </div>
-                <div class="text-center {% if order.status == 'Delivered' %}text-indigo-600 font-bold{% endif %}">
-                    <div>Delivered</div>
+
+                <!-- Delivered Step -->
+                <div class="text-center flex flex-col items-center" style="width: 33%;">
+                    <div
+                        class="w-4 h-4 rounded-full border-2 border-white {% if order.status == 'Delivered' %}bg-green-500{% else %}bg-gray-300{% endif %} shadow-sm mb-2">
+                    </div>
+                    <div class="{% if order.status == 'Delivered' %}text-green-600 font-bold{% endif %}">
+                        Delivered
+                    </div>
                     {% if order.delivered_at %}
-                    <div class="text-xs font-normal text-gray-500">{{ order.delivered_at|date:"M d, H:i" }}</div>
+                    <div class="text-xs font-normal text-gray-500 mt-1">{{ order.delivered_at|date:"M d, g:i A" }}</div>
+                    {% else %}
+                    <div class="text-xs font-normal text-gray-400 mt-1">Pending</div>
                     {% endif %}
                 </div>
             </div>

@@ -70,6 +70,10 @@ def order_create(request):
                 price=item["price"],
                 quantity=item["quantity"],
             )
+            # Update stock
+            product = item["product"]
+            product.stock -= item["quantity"]
+            product.save()
         cart.clear()
         return render(request, "store/order_created.html", {"order": order})
     return redirect("cart_detail")
