@@ -50,6 +50,12 @@ class Order(models.Model):
     )
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
+    # Added fields to match database schema from 'customerfeature-checkout-page' branch
+    full_name = models.CharField(max_length=200, default="")
+    address = models.CharField(max_length=255, default="")
+    city = models.CharField(max_length=100, default="")
+    zip_code = models.CharField(max_length=20, default="")
+
     def update_status_based_on_time(self):
         """
         Simulate order processing:

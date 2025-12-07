@@ -9,7 +9,7 @@ from .cart import Cart
 
 
 from django.contrib.admin.views.decorators import staff_member_required
-from .forms import CandyForm
+from .forms import CandyForm, CheckoutForm
 
 
 def home(request):
@@ -137,3 +137,36 @@ def inventory_update(request, pk):
     return render(
         request, "store/inventory_form.html", {"form": form, "title": "Update Product"}
     )
+
+
+@login_required(login_url="login")
+def checkout(request):
+    cart = Cart(request)
+    if len(cart) == 0:
+        return redirect("cart_detail")
+
+    if request.method == "POST":
+        form = CheckoutForm(request.POST)
+        if form.is_valid():
+            # Process mock payment
+            order = Order.objects.create(
+                user=request.user,
+                total_price=cart.get_total_price(),
+                full_name=form.cleaned_data["full_name"],
+                address=form.cleaned_data["address"],
+                city=form.cleaned_data["city"],
+                zip_code=form.cleaned_data["zip_code"],
+            )
+            for item in cart:
+                OrderItem.objects.create(
+                    order=order,
+                    product=item["product"],
+                    price=item["price"],
+                    quantity=item["quantity"],
+                )
+            cart.clear()
+            return render(request, "store/order_created.html", {"order": order})
+    else:
+        form = CheckoutForm()
+
+    return render(request, "store/checkout.html", {"cart": cart, "form": form})
