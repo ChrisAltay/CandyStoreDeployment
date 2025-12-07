@@ -68,10 +68,7 @@
     </div>
     <a href="{% url 'home' %}" class="btn btn-secondary" style="margin-right: 1rem;">Continue Shopping</a>
     {% if request.user.is_authenticated %}
-    <form action="{% url 'order_create' %}" method="post" style="display: inline;">
-        {% csrf_token %}
-        <button type="submit" class="btn" style="font-size: 1.2rem; cursor: pointer;">Proceed to Checkout</button>
-    </form>
+    <a href="{% url 'checkout' %}" class="btn" style="font-size: 1.2rem; cursor: pointer;">Proceed to Checkout</a>
     {% else %}
     <a href="{% url 'login' %}?next={% url 'cart_detail' %}" class="btn"
         style="font-size: 1.2rem; background-color: #333;">Log in to Checkout</a>

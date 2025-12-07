@@ -44,7 +44,7 @@ def register(request):  # Register new user
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect("home")
+        logout(request)
 
     if request.method == "POST":
         username = request.POST.get("username")

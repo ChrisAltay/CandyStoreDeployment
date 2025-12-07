@@ -19,6 +19,7 @@
         <a href="{% url 'register' %}" class="btn" style="background-color: #17a2b8;">📝 Register</a>
         {% endif %}
         {% if user.is_staff %}
+        <a href="{% url 'inventory_list' %}" class="btn" style="background-color: #fd7e14;">📦 Manage Inventory</a>
         <a href="/admin/" class="btn" style="background-color: #6f42c1;">⚙️ Admin Panel</a>
         {% endif %}
     </div>

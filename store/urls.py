@@ -14,9 +14,8 @@ urlpatterns = [
     path("order/create/", views.order_create, name="order_create"),
     path("orders/", views.order_history, name="order_history"),
     path("orders/<int:order_id>/", views.order_detail, name="order_detail"),
-    path(
-        "api/order/<int:order_id>/status/",
-        views.order_status_api,
-        name="order_status_api",
-    ),
+    path("inventory/", views.inventory_list, name="inventory_list"),
+    path("inventory/add/", views.inventory_add, name="inventory_add"),
+    path("inventory/update/<int:pk>/", views.inventory_update, name="inventory_update"),
+    path("checkout/", views.checkout, name="checkout"),
 ]

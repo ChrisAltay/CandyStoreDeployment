@@ -8,6 +8,10 @@ from .models import Candy, Order, OrderItem
 from .cart import Cart
 
 
+from django.contrib.admin.views.decorators import staff_member_required
+from .forms import CandyForm, CheckoutForm
+
+
 def home(request):
     """Home page showing all candies"""
     candies = Candy.objects.all()
@@ -111,22 +115,74 @@ def order_detail(request, order_id):
     return render(request, "store/order_detail.html", {"order": order})
 
 
-from django.http import JsonResponse
+@staff_member_required
+def inventory_list(request):
+    """List all products for inventory management"""
+    candies = Candy.objects.all()
+    return render(request, "store/inventory_list.html", {"candies": candies})
+
+
+@staff_member_required
+def inventory_add(request):
+    """Add a new product"""
+    if request.method == "POST":
+        form = CandyForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("inventory_list")
+    else:
+        form = CandyForm()
+
+    return render(
+        request, "store/inventory_form.html", {"form": form, "title": "Add Product"}
+    )
+
+
+@staff_member_required
+def inventory_update(request, pk):
+    """Update an existing product"""
+    candy = get_object_or_404(Candy, pk=pk)
+    if request.method == "POST":
+        form = CandyForm(request.POST, instance=candy)
+        if form.is_valid():
+            form.save()
+            return redirect("inventory_list")
+    else:
+        form = CandyForm(instance=candy)
+
+    return render(
+        request, "store/inventory_form.html", {"form": form, "title": "Update Product"}
+    )
 
 
 @login_required(login_url="login")
-def order_status_api(request, order_id):
-    """API endpoint for live order status updates"""
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+def checkout(request):
+    cart = Cart(request)
+    if len(cart) == 0:
+        return redirect("cart_detail")
 
-    # Trigger simulation update
-    order.update_status_based_on_time()
+    if request.method == "POST":
+        form = CheckoutForm(request.POST)
+        if form.is_valid():
+            # Process mock payment
+            order = Order.objects.create(
+                user=request.user,
+                total_price=cart.get_total_price(),
+                full_name=form.cleaned_data["full_name"],
+                address=form.cleaned_data["address"],
+                city=form.cleaned_data["city"],
+                zip_code=form.cleaned_data["zip_code"],
+            )
+            for item in cart:
+                OrderItem.objects.create(
+                    order=order,
+                    product=item["product"],
+                    price=item["price"],
+                    quantity=item["quantity"],
+                )
+            cart.clear()
+            return render(request, "store/order_created.html", {"order": order})
+    else:
+        form = CheckoutForm()
 
-    data = {
-        "status": order.status,
-        "shipped_at": order.shipped_at.isoformat() if order.shipped_at else None,
-        "delivered_at": order.delivered_at.isoformat() if order.delivered_at else None,
-        "is_shipped": order.status in [Order.STATUS_SHIPPED, Order.STATUS_DELIVERED],
-        "is_delivered": order.status == Order.STATUS_DELIVERED,
-    }
-    return JsonResponse(data)
+    return render(request, "store/checkout.html", {"cart": cart, "form": form})

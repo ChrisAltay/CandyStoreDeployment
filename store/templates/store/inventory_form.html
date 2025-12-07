@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - Inventory Management{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto;">
+    <h2 style="text-align: center; margin-bottom: 2rem;">{{ title }}</h2>
+
+    <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div style="margin-bottom: 1.5rem;">
+                <label for="{{ field.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">
+                    {{ field.label }}
+                </label>
+                {{ field }}
+                {% if field.help_text %}
+                <small style="color: #6c757d; display: block; margin-top: 0.25rem;">{{ field.help_text }}</small>
+                {% endif %}
+                {% if field.errors %}
+                <div style="color: #dc3545; font-size: 0.875rem; margin-top: 0.25rem;">
+                    {{ field.errors }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                <button type="submit" class="btn" style="background-color: #28a745; width: 100%;">Save Product</button>
+                <a href="{% url 'inventory_list' %}" class="btn"
+                    style="background-color: #6c757d; padding: 0.75rem 1.5rem;">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Basic styling for form fields */
+    input[type="text"],
+    input[type="number"],
+    input[type="url"],
+    textarea,
+    select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 1rem;
+        box-sizing: border-box;
+        /* Fix padding issue */
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    input[type="url"]:focus,
+    textarea:focus,
+    select:focus {
+        border-color: #ff6b9d;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(255, 107, 157, 0.25);
+    }
+</style>
+{% endblock %}
