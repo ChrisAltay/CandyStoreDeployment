@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout - Keanu's Candy Store{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto;">
+    <h2 style="text-align: center; margin-bottom: 1.5rem;">Secure Checkout</h2>
+
+    <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <h4 style="margin-bottom: 1rem; color: #6c757d;">Order Summary</h4>
+        <div style="margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #dee2e6;">
+            <p style="margin-bottom: 0.5rem;">Total Items: <strong>{{ cart|length }}</strong></p>
+            <p style="font-size: 1.25rem; font-weight: bold; color: #28a745;">Total Price: ${{ cart.get_total_price }}
+            </p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <h4 style="margin-bottom: 1rem;">Shipping & Payment</h4>
+            {% for field in form %}
+            <div style="margin-bottom: 1.5rem;">
+                <label for="{{ field.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">
+                    {{ field.label }}
+                </label>
+                {{ field }}
+                {% if field.help_text %}
+                <small style="color: #6c757d; display: block; margin-top: 0.25rem;">{{ field.help_text }}</small>
+                {% endif %}
+                {% if field.errors %}
+                <div style="color: #dc3545; font-size: 0.875rem; margin-top: 0.25rem;">
+                    {{ field.errors }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                <button type="submit" class="btn" style="background-color: #28a745; width: 100%;">Complete
+                    Order</button>
+                <a href="{% url 'cart_detail' %}" class="btn"
+                    style="background-color: #6c757d; padding: 0.75rem 1.5rem;">Back to Cart</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Basic styling for form fields */
+    input[type="text"],
+    input[type="number"],
+    input[type="url"],
+    textarea,
+    select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 1rem;
+        box-sizing: border-box;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    input[type="url"]:focus,
+    textarea:focus,
+    select:focus {
+        border-color: #ff6b9d;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(255, 107, 157, 0.25);
+    }
+</style>
+{% endblock %}
