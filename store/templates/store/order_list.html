@@ -12,6 +12,7 @@
             <thead class="bg-gray-100 border-b border-gray-200">
                 <tr>
                     <th class="py-4 px-6 font-semibold text-gray-700">Order ID</th>
+                    <th class="py-4 px-6 font-semibold text-gray-700">Items</th>
                     <th class="py-4 px-6 font-semibold text-gray-700">Date</th>
                     <th class="py-4 px-6 font-semibold text-gray-700">Total</th>
                     <th class="py-4 px-6 font-semibold text-gray-700">Status</th>
@@ -22,6 +23,26 @@
                 {% for order in orders %}
                 <tr class="border-b border-gray-100 hover:bg-gray-50">
                     <td class="py-4 px-6 text-gray-900">#{{ order.id }}</td>
+                    <td class="py-4 px-6">
+                        <div class="flex -space-x-2 overflow-hidden">
+                            {% for item in order.items.all|slice:":3" %}
+                            {% if item.product.image_url %}
+                            <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover"
+                                src="{{ item.product.image_url }}" alt="{{ item.product.name }}"
+                                title="{{ item.product.name }}">
+                            {% else %}
+                            <div class="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-gray-200 flex items-center justify-center text-xs text-gray-500"
+                                title="{{ item.product.name }}">?</div>
+                            {% endif %}
+                            {% endfor %}
+                            {% if order.items.count > 3 %}
+                            <div
+                                class="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-600">
+                                +{{ order.items.count|add:"-3" }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </td>
                     <td class="py-4 px-6 text-gray-600">{{ order.created_at|date:"M d, Y" }}</td>
                     <td class="py-4 px-6 font-medium text-green-600">${{ order.total_price }}</td>
                     <td class="py-4 px-6">
