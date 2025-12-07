@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+<!-- DEBUG_MARKER_CHECK_PERSISTENCE -->
 {% block title %}Order #{{ order.id }} Details{% endblock %}
 
 {% block content %}
@@ -297,8 +297,9 @@
                     <div class="item-placeholder">No Img</div>
                     {% endif %}
                     <div>
-                        <h3 style="font-size: 1.125rem; font-weight: 500; color: #111827; margin: 0 0 0.25rem 0;">{{
-                            item.product.name }}</h3>
+                        <h3 style="font-size: 1.125rem; font-weight: 500; color: #111827; margin: 0 0 0.25rem 0;">
+                            {{ item.product.name }}
+                        </h3>
                         <p style="color: #6b7280; font-size: 0.875rem; margin: 0;">Qty: {{ item.quantity }}</p>
                     </div>
                 </div>
