@@ -3,103 +3,307 @@
 {% block title %}Order #{{ order.id }} Details{% endblock %}
 
 {% block content %}
+<style>
+    /* Custom Styles for Order Status Tracker */
+    .status-container {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .tracker-header {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 3rem;
+    }
+
+    .progress-track {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    /* Background Line */
+    .progress-line-bg {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background-color: #e5e7eb;
+        transform: translateY(-50%);
+        z-index: 1;
+    }
+
+    /* Active Line */
+    .progress-line-active {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        height: 4px;
+        background-color: #10b981;
+        /* Green */
+        transform: translateY(-50%);
+        z-index: 2;
+        transition: width 1s ease-in-out;
+        width: 0%;
+    }
+
+    .step-item {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: white;
+        padding: 0 10px;
+    }
+
+    .step-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #d1d5db;
+        /* Gray-300 */
+        background-color: white;
+        color: #9ca3af;
+        /* Gray-400 */
+        font-weight: bold;
+        transition: all 0.5s ease;
+    }
+
+    .step-icon svg {
+        width: 20px;
+        height: 20px;
+        display: none;
+        /* Hidden by default */
+    }
+
+    /* Completed State */
+    .step-icon.completed {
+        background-color: #10b981;
+        border-color: #10b981;
+        color: white;
+    }
+
+    .step-icon.completed svg {
+        display: block;
+    }
+
+    .step-icon.completed span {
+        display: none;
+    }
+
+    /* Active/Current State (visual only, mostly same as completed for now) */
+    .step-icon.active {
+        border-color: #10b981;
+        color: #10b981;
+    }
+
+    .step-label {
+        margin-top: 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .step-time {
+        margin-top: 0.25rem;
+        font-size: 0.75rem;
+        color: #6b7280;
+    }
+
+    /* Map Section */
+    .map-container {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    #tracking-map {
+        height: 350px;
+        border-radius: 8px;
+        border: 2px solid #e5e7eb;
+        z-index: 1;
+    }
+
+    /* Items Section */
+    .items-container {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .items-header {
+        padding: 1rem 1.5rem;
+        background-color: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .items-list {
+        list-style: none;
+        padding: 0;
+        /* Reset default ul padding */
+        margin: 0;
+    }
+
+    .item-row {
+        padding: 1rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .item-row:last-child {
+        border-bottom: none;
+    }
+
+    .item-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .item-img {
+        width: 64px;
+        height: 64px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-right: 1rem;
+        border: 1px solid #e5e7eb;
+    }
+
+    .item-placeholder {
+        width: 64px;
+        height: 64px;
+        background-color: #f3f4f6;
+        border-radius: 6px;
+        margin-right: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9ca3af;
+        font-size: 0.8rem;
+    }
+
+    .nav-back {
+        display: inline-block;
+        margin-bottom: 1rem;
+        color: #4f46e5;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .nav-back:hover {
+        color: #3730a3;
+    }
+
+    .truck-icon {
+        /* inherited from JS divIcon style, ensuring visibility */
+    }
+</style>
+
 <div class="max-w-4xl mx-auto py-8">
-    <div class="mb-6 flex items-center justify-between">
-        <h1 class="text-3xl font-bold text-gray-800">Order #{{ order.id }}</h1>
-        <a href="{% url 'order_history' %}" class="text-indigo-600 hover:text-indigo-800 font-medium">&larr; Back to
-            History</a>
+    <div class="mb-6 flex items-center justify-between"
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h1 style="font-size: 2rem; font-weight: bold; color: #1f2937; margin: 0;">Order #{{ order.id }}</h1>
+        <a href="{% url 'order_history' %}" class="nav-back">&larr; Back to History</a>
     </div>
 
     <!-- Status Tracker -->
-    <div class="bg-white rounded-lg shadow-md p-8 mb-8" id="status-container">
-        <h2 class="text-xl font-semibold mb-8 text-gray-700">Order Status</h2>
+    <div class="status-container">
+        <h2 class="tracker-header">Order Status</h2>
 
-        <!-- Stepper Progress Bar -->
-        <div class="relative flex items-center justify-between w-full">
-            <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-gray-200 -z-10"></div>
-            <div class="absolute left-0 top-1/2 transform -translate-y-1/2 h-1 bg-green-500 -z-10 transition-all duration-1000"
-                id="progress-line" style="width: 0%;"></div>
+        <div class="progress-track">
+            <!-- Lines -->
+            <div class="progress-line-bg"></div>
+            <div class="progress-line-active" id="progress-line"></div>
 
             <!-- Step 1: Created -->
-            <div class="flex flex-col items-center bg-white px-2">
-                <div id="step-created-icon"
-                    class="w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors duration-500 bg-green-500 border-green-500 text-white">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="step-item">
+                <div id="step-created-icon" class="step-icon completed">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
                 </div>
-                <div class="mt-2 text-sm font-semibold text-gray-800">Created</div>
-                <div class="text-xs text-gray-500 mt-1 local-time" id="time-created"
-                    data-timestamp="{{ order.created_at|date:'c' }}"></div>
+                <div class="step-label">Created</div>
+                <div class="step-time local-time" id="time-created" data-timestamp="{{ order.created_at|date:'c' }}">
+                </div>
             </div>
 
             <!-- Step 2: Shipped -->
-            <div class="flex flex-col items-center bg-white px-2">
-                <div id="step-shipped-icon"
-                    class="w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors duration-500 {% if order.shipped_at %}bg-green-500 border-green-500 text-white{% else %}bg-white border-gray-300 text-gray-400{% endif %}">
-                    {% if order.shipped_at %}
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="step-item">
+                <div id="step-shipped-icon" class="step-icon {% if order.shipped_at %}completed{% endif %}">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
-                    {% else %}
-                    2
-                    {% endif %}
+                    <span>2</span>
                 </div>
-                <div class="mt-2 text-sm font-semibold text-gray-800">Shipped</div>
-                <div class="text-xs text-gray-500 mt-1 local-time" id="time-shipped"
-                    data-timestamp="{{ order.shipped_at|date:'c' }}"></div>
+                <div class="step-label">Shipped</div>
+                <div class="step-time local-time" id="time-shipped" data-timestamp="{{ order.shipped_at|date:'c' }}">
+                </div>
             </div>
 
             <!-- Step 3: Delivered -->
-            <div class="flex flex-col items-center bg-white px-2">
-                <div id="step-delivered-icon"
-                    class="w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors duration-500 {% if order.delivered_at %}bg-green-500 border-green-500 text-white{% else %}bg-white border-gray-300 text-gray-400{% endif %}">
-                    {% if order.delivered_at %}
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="step-item">
+                <div id="step-delivered-icon" class="step-icon {% if order.delivered_at %}completed{% endif %}">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
-                    {% else %}
-                    3
-                    {% endif %}
+                    <span>3</span>
                 </div>
-                <div class="mt-2 text-sm font-semibold text-gray-800">Delivered</div>
-                <div class="text-xs text-gray-500 mt-1 local-time" id="time-delivered"
+                <div class="step-label">Delivered</div>
+                <div class="step-time local-time" id="time-delivered"
                     data-timestamp="{{ order.delivered_at|date:'c' }}"></div>
             </div>
         </div>
     </div>
 
     <!-- Tracking Map -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold mb-4 text-gray-700">Live Tracking Simulation</h2>
-        <p class="text-sm text-gray-500 mb-4">Visualizing package journey from Distribution Center to Customer Zone.</p>
-        <div id="tracking-map" style="height: 350px; border-radius: 8px; z-index: 1; border: 2px solid #e5e7eb;"></div>
+    <div class="map-container">
+        <h2 class="tracker-header" style="margin-bottom: 1rem;">Live Tracking Simulation</h2>
+        <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;">Visualizing package journey from
+            Distribution Center to Customer Zone.</p>
+        <div id="tracking-map"></div>
     </div>
 
     <!-- Order Items -->
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-            <h2 class="text-lg font-semibold text-gray-700">Items Ordered</h2>
-            <span class="text-gray-600 font-medium">Total: ${{ order.total_price }}</span>
+    <div class="items-container">
+        <div class="items-header">
+            <h2 style="font-size: 1.125rem; font-weight: 600; color: #374151; margin:0;">Items Ordered</h2>
+            <span style="font-weight: 500; color: #4b5563;">Total: ${{ order.total_price }}</span>
         </div>
-        <ul class="divide-y divide-gray-200">
+        <ul class="items-list">
             {% for item in order.items.all %}
-            <li class="px-6 py-4 flex items-center justify-between">
-                <div class="flex items-center">
+            <li class="item-row">
+                <div class="item-info">
                     {% if item.product.image_url %}
-                    <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}"
-                        class="w-16 h-16 object-cover rounded-md mr-4 border border-gray-200">
+                    <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="item-img">
                     {% else %}
-                    <div class="w-16 h-16 bg-gray-100 rounded-md mr-4 flex items-center justify-center text-gray-400">No
-                        Img</div>
+                    <div class="item-placeholder">No Img</div>
                     {% endif %}
                     <div>
-                        <h3 class="text-lg font-medium text-gray-900">{{ item.product.name }}</h3>
-                        <p class="text-gray-500 text-sm">Qty: {{ item.quantity }}</p>
+                        <h3 style="font-size: 1.125rem; font-weight: 500; color: #111827; margin: 0 0 0.25rem 0;">{{
+                            item.product.name }}</h3>
+                        <p style="color: #6b7280; font-size: 0.875rem; margin: 0;">Qty: {{ item.quantity }}</p>
                     </div>
                 </div>
-                <div class="text-right">
-                    <p class="font-medium text-gray-800">${{ item.price }}</p>
+                <div style="text-align: right;">
+                    <p style="font-weight: 500; color: #1f2937; margin:0;">${{ item.price }}</p>
                 </div>
             </li>
             {% endfor %}
@@ -161,21 +365,19 @@
             else if (data.status === 'Shipped') progressLine.style.width = '50%';
             else if (data.status === 'Delivered') progressLine.style.width = '100%';
 
-            // Update Icons
-            const iconCheck = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
-
-            // Shipped Icon
+            // Update Icons via Class Toggling
             const shippedIcon = document.getElementById('step-shipped-icon');
             if (data.is_shipped) {
-                shippedIcon.className = "w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors duration-500 bg-green-500 border-green-500 text-white";
-                shippedIcon.innerHTML = iconCheck;
+                shippedIcon.classList.add('completed');
+            } else {
+                shippedIcon.classList.remove('completed');
             }
 
-            // Delivered Icon
             const deliveredIcon = document.getElementById('step-delivered-icon');
             if (data.is_delivered) {
-                deliveredIcon.className = "w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors duration-500 bg-green-500 border-green-500 text-white";
-                deliveredIcon.innerHTML = iconCheck;
+                deliveredIcon.classList.add('completed');
+            } else {
+                deliveredIcon.classList.remove('completed');
             }
 
             // Update Map
@@ -208,9 +410,6 @@
         }
 
         // Initial Load
-        // We call updateUI with initial template data first to avoid flicker? 
-        // Or just fetch immediately. Let's fetch immediately.
-        // Actually, populate initial UI from template first.
         const initialData = {
             status: "{{ order.status }}",
             shipped_at: "{{ order.shipped_at|date:'c' }}",
