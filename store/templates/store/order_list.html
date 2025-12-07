@@ -112,6 +112,11 @@
         color: #065f46;
     }
 
+    .status-cancelled {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
     .action-link {
         color: #4f46e5;
         text-decoration: none;
@@ -193,12 +198,15 @@
                             {% if order.status == 'Created' %}status-created
                             {% elif order.status == 'Shipped' %}status-shipped
                             {% elif order.status == 'Delivered' %}status-delivered
+                            {% elif order.status == 'Cancelled' %}status-cancelled
                             {% endif %}">
                             {{ order.status }}
                         </span>
                     </td>
                     <td>
                         <a href="{% url 'order_detail' order.id %}" class="action-link">View Details</a>
+                        <span style="margin: 0 0.5rem; color: #d1d5db;">|</span>
+                        <a href="{% url 'reorder' order.id %}" class="action-link">Reorder</a>
                     </td>
                 </tr>
                 {% endfor %}

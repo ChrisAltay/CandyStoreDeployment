@@ -31,11 +31,13 @@ class Order(models.Model):
     STATUS_CREATED = "Created"
     STATUS_SHIPPED = "Shipped"
     STATUS_DELIVERED = "Delivered"
+    STATUS_CANCELLED = "Cancelled"
 
     STATUS_CHOICES = (
         (STATUS_CREATED, "Created"),
         (STATUS_SHIPPED, "Shipped"),
         (STATUS_DELIVERED, "Delivered"),
+        (STATUS_CANCELLED, "Cancelled"),
     )
 
     user = models.ForeignKey(
@@ -55,6 +57,25 @@ class Order(models.Model):
     address = models.CharField(max_length=255, default="")
     city = models.CharField(max_length=100, default="")
     zip_code = models.CharField(max_length=20, default="")
+
+    def cancel_order(self):
+        """
+        Cancel the order and restore stock for all items.
+        Only allowed if order status is 'Created'.
+        Returns True if successful, False otherwise.
+        """
+        if self.status != self.STATUS_CREATED:
+            return False
+
+        # Restore stock for all items
+        for item in self.items.all():
+            item.product.stock += item.quantity
+            item.product.save()
+
+        # Update order status
+        self.status = self.STATUS_CANCELLED
+        self.save()
+        return True
 
     def update_status_based_on_time(self):
         """
