@@ -11,71 +11,73 @@
     </div>
 
     <!-- Status Tracker -->
+    <div class="bg-white rounded-lg shadow-md p-8 mb-8" id="status-container">
+        <h2 class="text-xl font-semibold mb-8 text-gray-700">Order Status</h2>
 
-    <div class="bg-white rounded-lg shadow-md p-8 mb-8">
-        <h2 class="text-xl font-semibold mb-6 text-gray-700">Order Status</h2>
-        <div class="relative">
-            <!-- Progress Bar Background -->
-            <div class="overflow-hidden h-3 mb-4 text-xs flex rounded-full bg-gray-200">
-                <div style="width: {% if order.status == 'Created' %}10%{% elif order.status == 'Shipped' %}50%{% elif order.status == 'Delivered' %}100%{% endif %}"
-                    class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-green-500 transition-all duration-1000 ease-in-out">
+        <!-- Stepper Progress Bar -->
+        <div class="relative flex items-center justify-between w-full">
+            <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-gray-200 -z-10"></div>
+            <div class="absolute left-0 top-1/2 transform -translate-y-1/2 h-1 bg-green-500 -z-10 transition-all duration-1000"
+                id="progress-line" style="width: 0%;"></div>
+
+            <!-- Step 1: Created -->
+            <div class="flex flex-col items-center bg-white px-2">
+                <div id="step-created-icon"
+                    class="w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors duration-500 bg-green-500 border-green-500 text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
                 </div>
+                <div class="mt-2 text-sm font-semibold text-gray-800">Created</div>
+                <div class="text-xs text-gray-500 mt-1 local-time" id="time-created"
+                    data-timestamp="{{ order.created_at|date:'c' }}"></div>
             </div>
 
-            <!-- Steps -->
-            <div class="flex justify-between text-sm text-gray-600 relative" style="top: -28px;">
-                <!-- Created Step -->
-                <div class="text-center flex flex-col items-center" style="width: 33%;">
-                    <div
-                        class="w-4 h-4 rounded-full border-2 border-white {% if order.status == 'Created' or order.status == 'Shipped' or order.status == 'Delivered' %}bg-green-500{% else %}bg-gray-300{% endif %} shadow-sm mb-2">
-                    </div>
-                    <div
-                        class="{% if order.status == 'Created' or order.status == 'Shipped' or order.status == 'Delivered' %}text-green-600 font-bold{% endif %}">
-                        Created
-                    </div>
-                    <div class="text-xs font-normal text-gray-500 mt-1 local-time"
-                        data-timestamp="{{ order.created_at|date:'c' }}">{{ order.created_at|date:"M d, g:i A" }}</div>
-                </div>
-
-                <!-- Shipped Step -->
-                <div class="text-center flex flex-col items-center" style="width: 33%;">
-                    <div
-                        class="w-4 h-4 rounded-full border-2 border-white {% if order.status == 'Shipped' or order.status == 'Delivered' %}bg-green-500{% else %}bg-gray-300{% endif %} shadow-sm mb-2">
-                    </div>
-                    <div
-                        class="{% if order.status == 'Shipped' or order.status == 'Delivered' %}text-green-600 font-bold{% endif %}">
-                        Shipped
-                    </div>
+            <!-- Step 2: Shipped -->
+            <div class="flex flex-col items-center bg-white px-2">
+                <div id="step-shipped-icon"
+                    class="w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors duration-500 {% if order.shipped_at %}bg-green-500 border-green-500 text-white{% else %}bg-white border-gray-300 text-gray-400{% endif %}">
                     {% if order.shipped_at %}
-                    <div class="text-xs font-normal text-gray-500 mt-1 local-time"
-                        data-timestamp="{{ order.shipped_at|date:'c' }}">{{ order.shipped_at|date:"M d, g:i A" }}</div>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
                     {% else %}
-                    <div class="text-xs font-normal text-gray-400 mt-1">Pending</div>
+                    2
                     {% endif %}
                 </div>
+                <div class="mt-2 text-sm font-semibold text-gray-800">Shipped</div>
+                <div class="text-xs text-gray-500 mt-1 local-time" id="time-shipped"
+                    data-timestamp="{{ order.shipped_at|date:'c' }}"></div>
+            </div>
 
-                <!-- Delivered Step -->
-                <div class="text-center flex flex-col items-center" style="width: 33%;">
-                    <div
-                        class="w-4 h-4 rounded-full border-2 border-white {% if order.status == 'Delivered' %}bg-green-500{% else %}bg-gray-300{% endif %} shadow-sm mb-2">
-                    </div>
-                    <div class="{% if order.status == 'Delivered' %}text-green-600 font-bold{% endif %}">
-                        Delivered
-                    </div>
+            <!-- Step 3: Delivered -->
+            <div class="flex flex-col items-center bg-white px-2">
+                <div id="step-delivered-icon"
+                    class="w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors duration-500 {% if order.delivered_at %}bg-green-500 border-green-500 text-white{% else %}bg-white border-gray-300 text-gray-400{% endif %}">
                     {% if order.delivered_at %}
-                    <div class="text-xs font-normal text-gray-500 mt-1 local-time"
-                        data-timestamp="{{ order.delivered_at|date:'c' }}">{{ order.delivered_at|date:"M d, g:i A" }}
-                    </div>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
                     {% else %}
-                    <div class="text-xs font-normal text-gray-400 mt-1">Pending</div>
+                    3
                     {% endif %}
                 </div>
+                <div class="mt-2 text-sm font-semibold text-gray-800">Delivered</div>
+                <div class="text-xs text-gray-500 mt-1 local-time" id="time-delivered"
+                    data-timestamp="{{ order.delivered_at|date:'c' }}"></div>
             </div>
         </div>
     </div>
 
+    <!-- Tracking Map -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4 text-gray-700">Live Tracking Simulation</h2>
+        <p class="text-sm text-gray-500 mb-4">Visualizing package journey from Distribution Center to Customer Zone.</p>
+        <div id="tracking-map" style="height: 350px; border-radius: 8px; z-index: 1; border: 2px solid #e5e7eb;"></div>
+    </div>
+
     <!-- Order Items -->
-    <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
             <h2 class="text-lg font-semibold text-gray-700">Items Ordered</h2>
             <span class="text-gray-600 font-medium">Total: ${{ order.total_price }}</span>
@@ -103,13 +105,6 @@
             {% endfor %}
         </ul>
     </div>
-
-    <!-- Tracking Map -->
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-xl font-semibold mb-4 text-gray-700">Live Tracking Simulation</h2>
-        <p class="text-sm text-gray-500 mb-4">Visualizing package journey from Distribution Center to Customer Zone.</p>
-        <div id="tracking-map" style="height: 300px; border-radius: 8px; z-index: 1; border: 2px solid #f3f4f6;"></div>
-    </div>
 </div>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -118,65 +113,117 @@
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Convert to Local Time
-        document.querySelectorAll('.local-time').forEach(el => {
-            const dateStr = el.getAttribute('data-timestamp');
-            if (dateStr) {
-                const date = new Date(dateStr);
-                el.textContent = date.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-            }
-        });
-
-        // Factory: New York, Destination: Boston (Example)
+        const orderId = "{{ order.id }}";
         const factoryCoords = [40.7128, -74.0060];
         const destCoords = [42.3601, -71.0589];
 
+        // Map Init
         var map = L.map('tracking-map').setView(factoryCoords, 6);
-
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            attribution: '&copy; OpenStreetMap'
         }).addTo(map);
 
-        // Calculate current position based on status
-        let currentCoords = factoryCoords;
-        let status = "{{ order.status }}";
-
-        if (status === "Created") {
-            currentCoords = factoryCoords;
-        } else if (status === "Shipped") {
-            // Midpoint
-            currentCoords = [
-                (factoryCoords[0] + destCoords[0]) / 2,
-                (factoryCoords[1] + destCoords[1]) / 2,
-            ];
-        } else if (status === "Delivered") {
-            currentCoords = destCoords;
-        }
-
-        // Add markers
         var factoryMarker = L.marker(factoryCoords).addTo(map).bindPopup('Distribution Center');
         var destMarker = L.marker(destCoords).addTo(map).bindPopup('Delivery Address');
-
-        // Truck marker (styled circle for simplicity or use custom icon)
         var truckIcon = L.divIcon({
             className: 'truck-icon',
-            html: '<div style="background-color: #ff6b9d; width: 15px; height: 15px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.5);"></div>',
-            iconSize: [15, 15]
+            html: '<div style="background-color: #10b981; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.3);"></div>',
+            iconSize: [16, 16]
         });
 
-        if (status !== "Delivered" && status !== "Created") {
-            L.marker(currentCoords, { icon: truckIcon }).addTo(map).bindPopup('On the way!').openPopup();
-        } else if (status === "Delivered") {
-            L.marker(currentCoords, { icon: truckIcon }).addTo(map).bindPopup('Delivered!').openPopup();
+        let truckMarker = null;
+
+        var latlngs = [factoryCoords, destCoords];
+        var polyline = L.polyline(latlngs, { color: '#3b82f6', opacity: 0.5, dashArray: '10, 10' }).addTo(map);
+        map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
+
+        function formatTime(isoString) {
+            if (!isoString || isoString === 'None') return 'Pending';
+            const date = new Date(isoString);
+            return date.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
         }
 
-        // Draw path
-        var latlngs = [factoryCoords, destCoords];
-        var polyline = L.polyline(latlngs, { color: 'blue', opacity: 0.5, dashArray: '10, 10' }).addTo(map);
+        function updateUI(data) {
+            // Update Timestamps
+            const createdText = formatTime(document.getElementById('time-created').getAttribute('data-timestamp'));
+            document.getElementById('time-created').textContent = createdText;
 
-        // Fit bounds
-        map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
+            const shippedEl = document.getElementById('time-shipped');
+            shippedEl.textContent = formatTime(data.shipped_at);
+
+            const deliveredEl = document.getElementById('time-delivered');
+            deliveredEl.textContent = formatTime(data.delivered_at);
+
+            // Update Progress Line
+            const progressLine = document.getElementById('progress-line');
+            if (data.status === 'Created') progressLine.style.width = '0%';
+            else if (data.status === 'Shipped') progressLine.style.width = '50%';
+            else if (data.status === 'Delivered') progressLine.style.width = '100%';
+
+            // Update Icons
+            const iconCheck = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+
+            // Shipped Icon
+            const shippedIcon = document.getElementById('step-shipped-icon');
+            if (data.is_shipped) {
+                shippedIcon.className = "w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors duration-500 bg-green-500 border-green-500 text-white";
+                shippedIcon.innerHTML = iconCheck;
+            }
+
+            // Delivered Icon
+            const deliveredIcon = document.getElementById('step-delivered-icon');
+            if (data.is_delivered) {
+                deliveredIcon.className = "w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors duration-500 bg-green-500 border-green-500 text-white";
+                deliveredIcon.innerHTML = iconCheck;
+            }
+
+            // Update Map
+            let currentCoords = factoryCoords;
+            if (data.status === 'Shipped') {
+                currentCoords = [(factoryCoords[0] + destCoords[0]) / 2, (factoryCoords[1] + destCoords[1]) / 2];
+            } else if (data.status === 'Delivered') {
+                currentCoords = destCoords;
+            }
+
+            if (data.status !== 'Created') {
+                if (truckMarker) {
+                    truckMarker.setLatLng(currentCoords);
+                } else {
+                    truckMarker = L.marker(currentCoords, { icon: truckIcon }).addTo(map).bindPopup('On the way!');
+                }
+                if (data.status === 'Delivered') truckMarker.bindPopup('Delivered!');
+            }
+        }
+
+        // Poll API
+        async function fetchStatus() {
+            try {
+                const response = await fetch(`/api/order/${orderId}/status/`);
+                const data = await response.json();
+                updateUI(data);
+            } catch (e) {
+                console.error("Error polling status:", e);
+            }
+        }
+
+        // Initial Load
+        // We call updateUI with initial template data first to avoid flicker? 
+        // Or just fetch immediately. Let's fetch immediately.
+        // Actually, populate initial UI from template first.
+        const initialData = {
+            status: "{{ order.status }}",
+            shipped_at: "{{ order.shipped_at|date:'c' }}",
+            delivered_at: "{{ order.delivered_at|date:'c' }}",
+            is_shipped: {% if order.shipped_at %}true{% else %} false{% endif %},
+        is_delivered: {% if order.delivered_at %} true{% else %} false{% endif %}
+    };
+    updateUI(initialData);
+
+    // Start Polling
+    if (initialData.status !== 'Delivered') {
+        setInterval(fetchStatus, 3000);
+    }
     });
 </script>
 {% endblock %}

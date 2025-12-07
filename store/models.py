@@ -63,15 +63,22 @@ class Order(models.Model):
         diff = now - self.created_at
         updated = False
 
-        if self.status == self.STATUS_CREATED and diff >= datetime.timedelta(minutes=1):
-            self.status = self.STATUS_SHIPPED
-            self.shipped_at = now
-            updated = True
+        # Status transitions based on elapsed time
+        if diff >= datetime.timedelta(minutes=1):
+            if self.status == self.STATUS_CREATED:
+                self.status = self.STATUS_SHIPPED
+                # Backdate the timestamp to when it 'should' have happened
+                self.shipped_at = self.created_at + datetime.timedelta(minutes=1)
+                updated = True
 
-        if self.status == self.STATUS_SHIPPED and diff >= datetime.timedelta(minutes=2):
-            self.status = self.STATUS_DELIVERED
-            self.delivered_at = now
-            updated = True
+        if diff >= datetime.timedelta(minutes=2):
+            if self.status in [self.STATUS_CREATED, self.STATUS_SHIPPED]:
+                self.status = self.STATUS_DELIVERED
+                # Ensure shipped_at is set if skipped
+                if not self.shipped_at:
+                    self.shipped_at = self.created_at + datetime.timedelta(minutes=1)
+                self.delivered_at = self.created_at + datetime.timedelta(minutes=2)
+                updated = True
 
         if updated:
             self.save()

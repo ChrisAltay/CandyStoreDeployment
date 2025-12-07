@@ -109,3 +109,24 @@ def order_detail(request, order_id):
     order.update_status_based_on_time()
 
     return render(request, "store/order_detail.html", {"order": order})
+
+
+from django.http import JsonResponse
+
+
+@login_required(login_url="login")
+def order_status_api(request, order_id):
+    """API endpoint for live order status updates"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    # Trigger simulation update
+    order.update_status_based_on_time()
+
+    data = {
+        "status": order.status,
+        "shipped_at": order.shipped_at.isoformat() if order.shipped_at else None,
+        "delivered_at": order.delivered_at.isoformat() if order.delivered_at else None,
+        "is_shipped": order.status in [Order.STATUS_SHIPPED, Order.STATUS_DELIVERED],
+        "is_delivered": order.status == Order.STATUS_DELIVERED,
+    }
+    return JsonResponse(data)
