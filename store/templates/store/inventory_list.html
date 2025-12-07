@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Inventory Management - Keanu's Candy Store{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <h2>📦 Inventory Management</h2>
+    <a href="{% url 'inventory_add' %}" class="btn" style="background-color: #28a745;">+ Add New Product</a>
+</div>
+
+<div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background-color: #f8f9fa;">
+                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6;">Name</th>
+                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6;">Category</th>
+                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6;">Price</th>
+                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6;">Stock</th>
+                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for candy in candies %}
+            <tr>
+                <td style="padding: 1rem; border-bottom: 1px solid #dee2e6;">{{ candy.name }}</td>
+                <td style="padding: 1rem; border-bottom: 1px solid #dee2e6;">{{ candy.category }}</td>
+                <td style="padding: 1rem; border-bottom: 1px solid #dee2e6;">${{ candy.price }}</td>
+                <td style="padding: 1rem; border-bottom: 1px solid #dee2e6;">
+                    {% if candy.stock < 10 %} <span style="color: red; font-weight: bold;">{{ candy.stock }}</span>
+                        {% else %}
+                        {{ candy.stock }}
+                        {% endif %}
+                </td>
+                <td style="padding: 1rem; border-bottom: 1px solid #dee2e6;">
+                    <a href="{% url 'inventory_update' candy.id %}" class="btn"
+                        style="background-color: #007bff; padding: 0.5rem 1rem; font-size: 0.9rem;">Edit</a>
+                    <a href="{% url 'candy_detail' candy.id %}" class="btn"
+                        style="background-color: #6c757d; padding: 0.5rem 1rem; font-size: 0.9rem;">View</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="padding: 2rem; text-align: center;">No products found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div style="margin-top: 2rem;">
+    <a href="{% url 'home' %}" class="btn">← Back to Home</a>
+</div>
+{% endblock %}
