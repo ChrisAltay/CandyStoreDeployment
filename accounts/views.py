@@ -76,8 +76,96 @@ def logout_view(request):
 
 @login_required
 def account_page(request):
-    """User account page"""
+    """User account page with preferences and watchlist"""
+    from .forms import UserPreferencesForm
+    from .models import UserPreferences
+    from store.models import ProductWatchlist
+
+    # Get or create user preferences
+    preferences, created = UserPreferences.objects.get_or_create(user=request.user)
+
+    # Get user's watchlist
+    watchlist = ProductWatchlist.objects.filter(user=request.user).select_related(
+        "product"
+    )
+
     context = {
         "user": request.user,
+        "preferences": preferences,
+        "preferences_form": UserPreferencesForm(instance=preferences),
+        "watchlist": watchlist,
     }
     return render(request, "accounts/account.html", context)
+
+
+@login_required
+def update_preferences(request):
+    """Update user notification preferences"""
+    from .forms import UserPreferencesForm
+    from .models import UserPreferences
+
+    if request.method == "POST":
+        preferences, created = UserPreferences.objects.get_or_create(user=request.user)
+        form = UserPreferencesForm(request.POST, instance=preferences)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Notification preferences updated successfully!")
+        else:
+            messages.error(request, "Error updating preferences. Please try again.")
+
+    return redirect("account")
+
+
+@login_required
+def remove_from_watchlist(request, product_id):
+    """Remove a product from user's watchlist"""
+    from store.models import ProductWatchlist, Candy
+
+    if request.method == "POST":
+        try:
+            watchlist_item = ProductWatchlist.objects.get(
+                user=request.user, product_id=product_id
+            )
+            product_name = watchlist_item.product.name
+            watchlist_item.delete()
+            messages.success(request, f"Removed {product_name} from your watchlist.")
+        except ProductWatchlist.DoesNotExist:
+            messages.error(request, "Item not found in your watchlist.")
+
+    return redirect("account")
+
+
+@login_required
+def update_watchlist_threshold(request, product_id):
+    """Update the alert threshold for a specific watchlist item"""
+    from store.models import ProductWatchlist
+
+    if request.method == "POST":
+        try:
+            watchlist_item = ProductWatchlist.objects.get(
+                user=request.user, product_id=product_id
+            )
+            threshold = request.POST.get("threshold")
+
+            if threshold:
+                threshold = int(threshold)
+                # Validate threshold is positive
+                if threshold > 0:
+                    watchlist_item.custom_threshold = threshold
+                    watchlist_item.save()
+                    messages.success(
+                        request,
+                        f"Alert threshold for {watchlist_item.product.name} updated to {threshold}",
+                    )
+                else:
+                    messages.error(request, "Threshold must be greater than 0")
+            else:
+                messages.error(request, "Please enter a valid threshold")
+
+        except ProductWatchlist.DoesNotExist:
+            messages.error(request, "Item not found in your watchlist.")
+        except ValueError:
+            messages.error(request, "Please enter a valid number")
+
+    return redirect("account")

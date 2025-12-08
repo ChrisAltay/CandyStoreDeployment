@@ -30,4 +30,7 @@ urlpatterns = [
         views.download_invoice,
         name="download_invoice",
     ),
+    path(
+        "candy/<int:candy_id>/watch/", views.add_to_watchlist, name="add_to_watchlist"
+    ),
 ]
