@@ -1,5 +1,5 @@
 from django import forms
-from .models import Candy
+from .models import Candy, Review
 
 
 class CandyForm(forms.ModelForm):
@@ -23,3 +23,23 @@ class CheckoutForm(forms.Form):
     )
     expiry = forms.CharField(max_length=5, label="Expiry (MM/YY)", initial="12/26")
     cvv = forms.CharField(max_length=4, label="CVV")
+
+
+class ReviewForm(forms.ModelForm):
+    """Form to add or edit a review"""
+
+    class Meta:
+        model = Review
+        fields = ["rating", "comment"]
+        widgets = {
+            "rating": forms.Select(
+                attrs={"class": "form-control", "style": "width: 100px;"}
+            ),
+            "comment": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 3,
+                    "placeholder": "Write your review here...",
+                }
+            ),
+        }

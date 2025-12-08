@@ -126,56 +126,41 @@ class OrderItem(models.Model):
         return f"{self.quantity} x {self.product.name}"
 
 
-class ProductWatchlist(models.Model):
-    """Track products that users are watching for stock alerts"""
+class Favorite(models.Model):
+    """Favorite model for users to save candies"""
 
     user = models.ForeignKey(
-        "auth.User", on_delete=models.CASCADE, related_name="watchlist"
+        "auth.User", on_delete=models.CASCADE, related_name="favorites"
     )
-    product = models.ForeignKey(
-        Candy, on_delete=models.CASCADE, related_name="watchers"
-    )
-    added_at = models.DateTimeField(auto_now_add=True)
-    auto_added = models.BooleanField(
-        default=False, help_text="True if automatically added from order history"
-    )
-    last_notified = models.DateTimeField(
-        null=True,
-        blank=True,
-        help_text="Last time user was notified about this product",
-    )
-    custom_threshold = models.IntegerField(
-        null=True,
-        blank=True,
-        help_text="Custom alert threshold for this specific product (overrides global setting)",
-    )
-
-    class Meta:
-        unique_together = ("user", "product")
-        ordering = ["-added_at"]
-
-    def __str__(self):
-        return f"{self.user.username} watching {self.product.name}"
-
-
-class StockAlert(models.Model):
-    """Track restock notification requests for out-of-stock items"""
-
-    user = models.ForeignKey(
-        "auth.User", on_delete=models.CASCADE, related_name="stock_alerts"
-    )
-    product = models.ForeignKey(
-        Candy, on_delete=models.CASCADE, related_name="stock_alerts"
+    candy = models.ForeignKey(
+        Candy, on_delete=models.CASCADE, related_name="favorited_by"
     )
     created_at = models.DateTimeField(auto_now_add=True)
-    notified = models.BooleanField(
-        default=False, help_text="Whether user has been notified"
-    )
-    email_sent_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        unique_together = ("user", "product")
-        ordering = ["-created_at"]
+        unique_together = ("user", "candy")
 
     def __str__(self):
-        return f"{self.user.username} wants {self.product.name} restocked"
+        return f"{self.user.username} - {self.candy.name}"
+
+
+class Review(models.Model):
+    """Review model for candies"""
+
+    user = models.ForeignKey(
+        "auth.User", on_delete=models.CASCADE, related_name="reviews"
+    )
+    candy = models.ForeignKey(Candy, on_delete=models.CASCADE, related_name="reviews")
+    rating = models.IntegerField(
+        choices=[(i, i) for i in range(1, 6)], default=5
+    )  # 1-5 scale
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        unique_together = ("user", "candy")  # Limit 1 review per candy per user
+
+    def __str__(self):
+        return f"{self.rating}* by {self.user.username} for {self.candy.name}"
