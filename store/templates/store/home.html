@@ -39,34 +39,32 @@
         <img src="{% static 'store/images/SourPatch_kids.webp' %}" alt="Sour Patch Kids" class="candy-image">
         {% endif %}
 
-    <div class="card-content">
-        <h3>{{ candy.name }}</h3>
-        <p>{{ candy.description }}</p>
-        <div class="price">${{ candy.price|floatformat:2 }}</div>
-        <div class="stock">Stock: {{ candy.stock }}</div>
+        <div class="card-content">
+            <h3>{{ candy.name }}</h3>
+            <p>{{ candy.description }}</p>
+            <div class="price">${{ candy.price|floatformat:2 }}</div>
+            <div class="stock">Stock: {{ candy.stock }}</div>
 
-        <div class="card-actions">
-            <a href="{% url 'candy_detail' candy.id %}" class="btn btn-secondary">View Details</a>
+            <div class="card-actions">
+                <a href="{% url 'candy_detail' candy.id %}" class="btn btn-secondary">View Details</a>
 
-            {% if candy.stock > 0 %}
+                {% if candy.stock > 0 %}
                 <form action="{% url 'cart_add' candy.id %}" method="post" class="add-to-cart-form">
                     {% csrf_token %}
                     <input type="hidden" name="quantity" value="1">
                     <button type="submit" class="btn btn-primary">Add to Cart</button>
                 </form>
-            {% else %}
-                <button class="btn btn-secondary"
-                        style="flex: 1; opacity: 0.6; cursor: not-allowed;"
-                        disabled>
+                {% else %}
+                <button class="btn btn-secondary" style="flex: 1; opacity: 0.6; cursor: not-allowed;" disabled>
                     Out of Stock
                 </button>
-            {% endif %}
+                {% endif %}
+            </div>
         </div>
     </div>
-</div>
-{% empty %}
-<p>No candies available at the moment.</p>
-{% endfor %}
+    {% empty %}
+    <p>No candies available at the moment.</p>
+    {% endfor %}
 </div>
 
 <script>
