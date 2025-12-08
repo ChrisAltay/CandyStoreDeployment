@@ -179,18 +179,18 @@ def send_delivery_email(order):
         print(f"Failed to send delivery email: {e}")
 
 
-@receiver(post_save, sender=OrderItem)
-def add_ordered_product_to_watchlist(sender, instance, created, **kwargs):
-    """
-    Automatically add products to user's watchlist when they order them.
-    Only adds if not already in watchlist.
-    """
-    if created and instance.order.user:
-        ProductWatchlist.objects.get_or_create(
-            user=instance.order.user,
-            product=instance.product,
-            defaults={"auto_added": True},
-        )
+# @receiver(post_save, sender=OrderItem)
+# def add_ordered_product_to_watchlist(sender, instance, created, **kwargs):
+#     """
+#     Automatically add products to user's watchlist when they order them.
+#     Only adds if not already in watchlist.
+#     """
+#     if created and instance.order.user:
+#         ProductWatchlist.objects.get_or_create(
+#             user=instance.order.user,
+#             product=instance.product,
+#             defaults={"auto_added": True},
+#         )
 
 
 @receiver(post_save, sender=Candy)
