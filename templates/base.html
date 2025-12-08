@@ -27,7 +27,8 @@
             /* Blue 800 */
             color: white;
             padding: 1rem 2rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            /* Floating effect */
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -152,13 +153,15 @@
             background: white;
             border-radius: 0.75rem;
             padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            /* More shadow initially */
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .candy-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            /* Deep shadow on hover */
         }
 
         .candy-card h3 {
@@ -422,6 +425,29 @@
             font-size: 0.9rem;
             font-weight: 500;
         }
+
+        .logo {
+            height: 60px;
+            /* Increased size */
+            width: 60px;
+            /* Fixed width for perfect circle */
+            object-fit: cover;
+            /* Ensures image fills the circle */
+            display: block;
+            border-radius: 50%;
+            /* Circular */
+            border: 2px solid white;
+            /* Optional: adds a nice border */
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            /* Bouncy transition */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo:hover {
+            transform: scale(1.2);
+            /* Grow on hover */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -432,7 +458,9 @@
     </div>
     <div class="header">
         <div style="display: flex; align-items: center; gap: 2rem;">
-            <h1>🍬 Keanu's Candy Store</h1>
+            <a href="{% url 'home' %}">
+                <img src="{% static 'store/images/Logo.webp' %}" alt="Keanu's Candy Store" class="logo">
+            </a>
             <!-- Search Bar -->
             <div class="search-container">
                 <input type="text" id="candySearch" class="search-input" placeholder="Search candies..."
@@ -445,9 +473,22 @@
 
         <nav class="nav">
             <a href="{% url 'home' %}">Home</a>
-            <a href="{% url 'cart_detail' %}">🛒 Cart {% if cart|length > 0 %}<span
-                    style="background: white; color: #1e40af; padding: 0.1rem 0.4rem; border-radius: 999px; font-size: 0.8em; margin-left: 4px;">{{
-                    cart|length }}</span>{% endif %}</a>
+            <a href="{% url 'cart_detail' %}">
+                🛒 Cart
+                {% with cart_count=cart|length %}
+                {% if cart_count %}
+                <span style="background: white;
+                       color: #1e40af;
+                       padding: 0.1rem 0.4rem;
+                       border-radius: 999px;
+                       font-size: 0.8em;
+                       margin-left: 4px;">
+                    {{ cart_count }}
+                </span>
+                {% endif %}
+                {% endwith %}
+            </a>
+
             {% if user.is_authenticated %}
             <a href="{% url 'account' %}">My Account</a>
             {% endif %}
