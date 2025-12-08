@@ -219,6 +219,15 @@ def checkout(request):
     if request.method == "POST":
         form = CheckoutForm(request.POST)
         if form.is_valid():
+            # Verify stock availability first
+            for item in cart:
+                if item["product"].stock < item["quantity"]:
+                    messages.error(
+                        request,
+                        f"Not enough stock for {item['product'].name}. Only {item['product'].stock} left.",
+                    )
+                    return redirect("cart_detail")
+
             # Process mock payment
             order = Order.objects.create(
                 user=request.user,
@@ -235,6 +244,11 @@ def checkout(request):
                     price=item["price"],
                     quantity=item["quantity"],
                 )
+                # Deduct stock
+                product = item["product"]
+                product.stock -= item["quantity"]
+                product.save()
+
             cart.clear()
             return render(request, "store/order_created.html", {"order": order})
     else:

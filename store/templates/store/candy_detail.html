@@ -46,11 +46,34 @@
             Add to Cart
         </button>
     </form>
+
+    <!-- Add to Watchlist Button (for in-stock items) -->
+    {% if user.is_authenticated %}
+    <form action="{% url 'add_to_watchlist' candy.id %}" method="post" style="margin-top: 1rem;">
+        {% csrf_token %}
+        <button type="submit" class="btn"
+            style="background-color: #6c757d; color: white; padding: 0.75rem 2rem; font-size: 1.1rem;">
+            👀 Add to Watchlist
+        </button>
+    </form>
+    {% endif %}
+
     {% else %}
     <div
         style="margin-top: 2rem; padding: 1rem; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; color: #721c24;">
         <strong>Out of Stock</strong> - This item is currently unavailable.
     </div>
+
+    <!-- Add to Watchlist Button (for out-of-stock items) -->
+    {% if user.is_authenticated %}
+    <form action="{% url 'add_to_watchlist' candy.id %}" method="post" style="margin-top: 1rem;">
+        {% csrf_token %}
+        <button type="submit" class="btn"
+            style="background-color: #6c757d; color: white; padding: 0.75rem 2rem; font-size: 1.1rem;">
+            👀 Add to Watchlist
+        </button>
+    </form>
+    {% endif %}
     {% endif %}
 
     <div style="margin-top: 2rem;">
