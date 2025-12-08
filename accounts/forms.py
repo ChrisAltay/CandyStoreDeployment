@@ -14,7 +14,6 @@ class UserPreferencesForm(forms.ModelForm):
         fields = [
             "low_stock_email_alerts",
             "restock_email_alerts",
-            "low_stock_threshold",
         ]
         widgets = {
             "low_stock_email_alerts": forms.CheckboxInput(

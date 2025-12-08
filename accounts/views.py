@@ -112,6 +112,7 @@ def update_preferences(request):
             form.save()
             messages.success(request, "Notification preferences updated successfully!")
         else:
+            print("Form errors:", form.errors)
             messages.error(request, "Error updating preferences. Please try again.")
 
     return redirect("account")
