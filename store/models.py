@@ -142,3 +142,25 @@ class Favorite(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.candy.name}"
+
+
+class Review(models.Model):
+    """Review model for candies"""
+
+    user = models.ForeignKey(
+        "auth.User", on_delete=models.CASCADE, related_name="reviews"
+    )
+    candy = models.ForeignKey(Candy, on_delete=models.CASCADE, related_name="reviews")
+    rating = models.IntegerField(
+        choices=[(i, i) for i in range(1, 6)], default=5
+    )  # 1-5 scale
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        unique_together = ("user", "candy")  # Limit 1 review per candy per user
+
+    def __str__(self):
+        return f"{self.rating}* by {self.user.username} for {self.candy.name}"

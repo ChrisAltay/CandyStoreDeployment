@@ -35,4 +35,6 @@ urlpatterns = [
         views.toggle_favorite,
         name="toggle_favorite",
     ),
+    path("review/edit/<int:review_id>/", views.review_edit, name="review_edit"),
+    path("review/delete/<int:review_id>/", views.review_delete, name="review_delete"),
 ]

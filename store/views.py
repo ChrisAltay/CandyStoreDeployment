@@ -5,12 +5,13 @@ Store views for browsing candies
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse, JsonResponse
-from .models import Candy, Order, OrderItem, Favorite
+from .models import Candy, Order, OrderItem, Favorite, Review
+from django.db import models
 from .cart import Cart
 
 
 from django.contrib.admin.views.decorators import staff_member_required
-from .forms import CandyForm, CheckoutForm
+from .forms import CandyForm, CheckoutForm, ReviewForm
 
 
 def home(request):
@@ -25,13 +26,43 @@ def home(request):
 def candy_detail(request, candy_id):
     """Detail page for a single candy"""
     candy = get_object_or_404(Candy, id=candy_id)
+
+    # Favorites logic
     is_favorited = False
     if request.user.is_authenticated:
         is_favorited = Favorite.objects.filter(user=request.user, candy=candy).exists()
 
+    # Reviews logic
+    reviews = candy.reviews.all()
+    average_rating = reviews.aggregate(models.Avg("rating"))["rating__avg"]
+
+    user_review = None
+    if request.user.is_authenticated:
+        user_review = reviews.filter(user=request.user).first()
+
+    # Handle Add Review
+    if request.method == "POST" and "add_review" in request.POST:
+        if not request.user.is_authenticated:
+            return redirect("login")
+
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.user = request.user
+            review.candy = candy
+            review.save()
+            messages.success(request, "Review added successfully!")
+            return redirect("candy_detail", candy_id=candy.id)
+    else:
+        form = ReviewForm()
+
     context = {
         "candy": candy,
         "is_favorited": is_favorited,
+        "reviews": reviews,
+        "average_rating": average_rating,
+        "user_review": user_review,
+        "form": form,
     }
     return render(request, "store/candy_detail.html", context)
 
@@ -402,3 +433,35 @@ def toggle_favorite(request, candy_id):
         favorited = True
 
     return JsonResponse({"favorited": favorited})
+
+
+@login_required(login_url="login")
+def review_edit(request, review_id):
+    """Edit an existing review"""
+    review = get_object_or_404(Review, id=review_id, user=request.user)
+
+    if request.method == "POST":
+        form = ReviewForm(request.POST, instance=review)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Review updated successfully!")
+            return redirect("account")
+    else:
+        form = ReviewForm(instance=review)
+
+    return render(
+        request, "store/review_form.html", {"form": form, "title": "Edit Review"}
+    )
+
+
+@login_required(login_url="login")
+def review_delete(request, review_id):
+    """Delete a review"""
+    review = get_object_or_404(Review, id=review_id, user=request.user)
+
+    if request.method == "POST":
+        review.delete()
+        messages.success(request, "Review deleted successfully!")
+        return redirect("account")
+
+    return render(request, "store/review_confirm_delete.html", {"review": review})
