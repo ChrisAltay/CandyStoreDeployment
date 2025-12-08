@@ -76,16 +76,27 @@ def logout_view(request):
 
 @login_required
 def account_page(request):
-    """User account page"""
-    from store.models import Favorite, Review  # Import here to avoid circular ref
+    """User account page with preferences and watchlist"""
+    from store.models import Favorite, Review, ProductWatchlist
+    from .models import UserPreferences
+    from .forms import UserPreferencesForm, UserProfileForm
 
     favorites = Favorite.objects.filter(user=request.user).select_related("candy")
     reviews = Review.objects.filter(user=request.user).select_related("candy")
+
+    preferences, created = UserPreferences.objects.get_or_create(user=request.user)
+    watchlist = ProductWatchlist.objects.filter(user=request.user).select_related(
+        "product"
+    )
 
     context = {
         "user": request.user,
         "favorites": favorites,
         "reviews": reviews,
+        "preferences": preferences,
+        "preferences_form": UserPreferencesForm(instance=preferences),
+        "profile_form": UserProfileForm(instance=request.user),
+        "watchlist": watchlist,
     }
     return render(request, "accounts/account.html", context)
 
