@@ -30,4 +30,9 @@ urlpatterns = [
         views.download_invoice,
         name="download_invoice",
     ),
+    path(
+        "favorite/toggle/<int:candy_id>/",
+        views.toggle_favorite,
+        name="toggle_favorite",
+    ),
 ]

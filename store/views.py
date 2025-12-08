@@ -5,7 +5,7 @@ Store views for browsing candies
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse, JsonResponse
-from .models import Candy, Order, OrderItem
+from .models import Candy, Order, OrderItem, Favorite
 from .cart import Cart
 
 
@@ -25,8 +25,13 @@ def home(request):
 def candy_detail(request, candy_id):
     """Detail page for a single candy"""
     candy = get_object_or_404(Candy, id=candy_id)
+    is_favorited = False
+    if request.user.is_authenticated:
+        is_favorited = Favorite.objects.filter(user=request.user, candy=candy).exists()
+
     context = {
         "candy": candy,
+        "is_favorited": is_favorited,
     }
     return render(request, "store/candy_detail.html", context)
 
@@ -381,3 +386,19 @@ def download_invoice(request, order_id):
     response.write(pdf)
 
     return response
+
+
+@login_required(login_url="login")
+@require_POST
+def toggle_favorite(request, candy_id):
+    """Toggle favorite status for a candy"""
+    candy = get_object_or_404(Candy, id=candy_id)
+    favorite, created = Favorite.objects.get_or_create(user=request.user, candy=candy)
+
+    if not created:
+        favorite.delete()
+        favorited = False
+    else:
+        favorited = True
+
+    return JsonResponse({"favorited": favorited})

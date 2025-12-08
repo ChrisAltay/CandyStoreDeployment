@@ -4,7 +4,29 @@
 
 {% block content %}
 <div style="max-width: 800px; margin: 0 auto;">
-    <h2>{{ candy.name }}</h2>
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+        <h2>{{ candy.name }}</h2>
+        {% if user.is_authenticated %}
+        <button id="favorite-btn" class="btn-icon" data-candy-id="{{ candy.id }}"
+            style="background: none; border: none; cursor: pointer; font-size: 2rem; padding: 0;">
+            {% if is_favorited %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#ff6b9d"
+                stroke="#ff6b9d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                </path>
+            </svg>
+            {% else %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                stroke="#ff6b9d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                </path>
+            </svg>
+            {% endif %}
+        </button>
+        {% endif %}
+    </div>
     <p><strong>Category:</strong> {{ candy.category }}</p>
     <p><strong>Description:</strong> {{ candy.description }}</p>
     <div class="price" style="font-size: 2rem; margin: 1rem 0;">${{ candy.price|floatformat:2 }}</div>
@@ -35,4 +57,32 @@
         <a href="{% url 'home' %}" class="btn btn-secondary">Back to Store</a>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const favoriteBtn = document.getElementById('favorite-btn');
+        if (favoriteBtn) {
+            favoriteBtn.addEventListener('click', function () {
+                const candyId = this.dataset.candyId;
+                fetch(`/favorite/toggle/${candyId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    },
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        const svg = this.querySelector('svg');
+                        if (data.favorited) {
+                            svg.setAttribute('fill', '#ff6b9d');
+                        } else {
+                            svg.setAttribute('fill', 'none');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        }
+    });
+</script>
 {% endblock %}

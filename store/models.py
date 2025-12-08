@@ -124,3 +124,21 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"
+
+
+class Favorite(models.Model):
+    """Favorite model for users to save candies"""
+
+    user = models.ForeignKey(
+        "auth.User", on_delete=models.CASCADE, related_name="favorites"
+    )
+    candy = models.ForeignKey(
+        Candy, on_delete=models.CASCADE, related_name="favorited_by"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "candy")
+
+    def __str__(self):
+        return f"{self.user.username} - {self.candy.name}"

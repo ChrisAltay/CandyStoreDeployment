@@ -77,7 +77,11 @@ def logout_view(request):
 @login_required
 def account_page(request):
     """User account page"""
+    from store.models import Favorite  # Import here to avoid circular ref if any
+
+    favorites = Favorite.objects.filter(user=request.user).select_related("candy")
     context = {
         "user": request.user,
+        "favorites": favorites,
     }
     return render(request, "accounts/account.html", context)
