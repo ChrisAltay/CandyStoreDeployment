@@ -227,7 +227,7 @@
     <!-- Action Buttons -->
     <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
         {% if order.status == 'Created' %}
-        <button onclick="showCancelModal()"
+        <button id="cancel-btn" onclick="showCancelModal()"
             style="padding: 0.75rem 1.5rem; background-color: #ef4444; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;">
             Cancel Order
         </button>
@@ -476,6 +476,14 @@
                     truckMarker = L.marker(currentCoords, { icon: truckIcon }).addTo(map).bindPopup('On the way!');
                 }
                 if (data.status === 'Delivered') truckMarker.bindPopup('Delivered!');
+            }
+
+            // Real-time Button Visibility
+            const cancelBtn = document.getElementById('cancel-btn');
+            if (cancelBtn) {
+                if (data.status !== 'Created') {
+                    cancelBtn.style.display = 'none';
+                }
             }
         }
 

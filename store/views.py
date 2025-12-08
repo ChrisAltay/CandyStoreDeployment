@@ -219,6 +219,15 @@ def checkout(request):
     if request.method == "POST":
         form = CheckoutForm(request.POST)
         if form.is_valid():
+            # Verify stock availability first
+            for item in cart:
+                if item["product"].stock < item["quantity"]:
+                    messages.error(
+                        request,
+                        f"Not enough stock for {item['product'].name}. Only {item['product'].stock} left.",
+                    )
+                    return redirect("cart_detail")
+
             # Process mock payment
             order = Order.objects.create(
                 user=request.user,
@@ -235,6 +244,11 @@ def checkout(request):
                     price=item["price"],
                     quantity=item["quantity"],
                 )
+                # Deduct stock
+                product = item["product"]
+                product.stock -= item["quantity"]
+                product.save()
+
             cart.clear()
             return render(request, "store/order_created.html", {"order": order})
     else:
@@ -465,3 +479,25 @@ def review_delete(request, review_id):
         return redirect("account")
 
     return render(request, "store/review_confirm_delete.html", {"review": review})
+
+
+@login_required
+def add_to_watchlist(request, candy_id):
+    """Add a product to user's watchlist"""
+    from .models import ProductWatchlist
+    from django.shortcuts import get_object_or_404
+
+    if request.method == "POST":
+        candy = get_object_or_404(Candy, id=candy_id)
+
+        # Check if already in watchlist
+        watchlist_item, created = ProductWatchlist.objects.get_or_create(
+            user=request.user, product=candy, defaults={"auto_added": False}
+        )
+
+        if created:
+            messages.success(request, f"Added {candy.name} to your watchlist!")
+        else:
+            messages.info(request, f"{candy.name} is already in your watchlist.")
+
+    return redirect("candy_detail", candy_id=candy_id)
