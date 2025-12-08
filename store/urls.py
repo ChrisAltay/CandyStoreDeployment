@@ -30,4 +30,11 @@ urlpatterns = [
         views.download_invoice,
         name="download_invoice",
     ),
+    path(
+        "favorite/toggle/<int:candy_id>/",
+        views.toggle_favorite,
+        name="toggle_favorite",
+    ),
+    path("review/edit/<int:review_id>/", views.review_edit, name="review_edit"),
+    path("review/delete/<int:review_id>/", views.review_delete, name="review_delete"),
 ]

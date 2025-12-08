@@ -18,5 +18,113 @@
             Orders 📦</a>
         <a href="{% url 'home' %}" class="btn">Browse Candies 🍬</a>
     </div>
+
+    <div style="margin-top: 3rem;">
+        <h3 style="color: #ff6b9d; margin-bottom: 1.5rem;">❤️ My Favorite Candies</h3>
+        {% if favorites %}
+        <div class="candy-grid">
+            {% for fav in favorites %}
+            <div class="candy-card">
+                <h3>{{ fav.candy.name }}</h3>
+                <p class="price">${{ fav.candy.price|floatformat:2 }}</p>
+                <p class="stock">In Stock: {{ fav.candy.stock }}</p>
+
+
+                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                    {% if fav.candy.stock > 0 %}
+                    <form action="{% url 'cart_add' fav.candy.id %}" method="post" style="flex: 1;">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn" style="width: 100%;">
+                            Order 🛒
+                        </button>
+                    </form>
+                    {% else %}
+                    <button class="btn btn-secondary" disabled style="flex: 1; cursor: not-allowed; opacity: 0.7;">
+                        Out of Stock
+                    </button>
+                    {% endif %}
+
+                    <button class="btn btn-secondary remove-fav-btn" data-candy-id="{{ fav.candy.id }}"
+                        style="background-color: #dc3545; color: white; border: none; padding: 0.5rem;">
+                        🗑️
+                    </button>
+                </div>
+
+                <div style="margin-top: 0.5rem; text-align: center;">
+                    <a href="{% url 'candy_detail' fav.candy.id %}"
+                        style="color: #ff6b9d; text-decoration: none; font-size: 0.9rem;">View Details</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="text-align: center; color: #666; background: white; padding: 2rem; border-radius: 8px;">
+            You haven't favorited any candies yet. <a href="{% url 'home' %}" style="color: #ff6b9d;">Go explore!</a>
+        </p>
+        {% endif %}
+    </div>
+
+    <div style="margin-top: 3rem;">
+        <h3 style="color: #ff6b9d; margin-bottom: 1.5rem;">📝 My Reviews</h3>
+        {% if reviews %}
+        <div style="display: grid; gap: 1rem;">
+            {% for review in reviews %}
+            <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h4 style="margin-bottom: 0.5rem;"><a href="{% url 'candy_detail' review.candy.id %}"
+                                style="color: #333; text-decoration: none;">{{ review.candy.name }}</a></h4>
+                        <span style="color: #ffc107;">{{ review.rating }} ⭐</span>
+                    </div>
+                </div>
+                <p style="margin-top: 1rem;">{{ review.comment }}</p>
+
+                <div style="margin-top: 1rem; text-align: right;">
+                    <a href="{% url 'review_edit' review.id %}" class="btn btn-secondary"
+                        style="font-size: 0.9rem;">Edit</a>
+                    <a href="{% url 'review_delete' review.id %}" class="btn"
+                        style="background-color: #dc3545; font-size: 0.9rem;">Delete</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="text-align: center; color: #666; background: white; padding: 2rem; border-radius: 8px;">
+            You haven't left any reviews yet.
+        </p>
+        {% endif %}
+    </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const removeBtns = document.querySelectorAll('.remove-fav-btn');
+        removeBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                if (!confirm('Remove from favorites?')) return;
+
+                const candyId = this.dataset.candyId;
+                const card = this.closest('.candy-card');
+
+                fetch(`/favorite/toggle/${candyId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    },
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.favorited) {
+                            card.style.transition = 'opacity 0.5s';
+                            card.style.opacity = '0';
+                            setTimeout(() => card.remove(), 500);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        });
+    });
+</script>
 {% endblock %}

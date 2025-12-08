@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Review - Keanu's Candy Store{% endblock %}
+
+{% block content %}
+<div
+    style="max-width: 600px; margin: 0 auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center;">
+    <h2 style="margin-bottom: 1.5rem; color: #dc3545;">Delete Review?</h2>
+    <p>Are you sure you want to delete your review for <strong>{{ review.candy.name }}</strong>?</p>
+    <p style="color: #666; margin-bottom: 2rem;">This action cannot be undone.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn" style="background-color: #dc3545;">Yes, Delete</button>
+        <a href="{% url 'account' %}" class="btn btn-secondary" style="margin-left: 1rem;">Cancel</a>
+    </form>
+</div>
+{% endblock %}
