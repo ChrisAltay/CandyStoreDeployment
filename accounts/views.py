@@ -83,9 +83,11 @@ def account_page(request):
 
     favorites = Favorite.objects.filter(user=request.user).select_related("candy")
     reviews = Review.objects.filter(user=request.user).select_related("candy")
-    
+
     preferences, created = UserPreferences.objects.get_or_create(user=request.user)
-    watchlist = ProductWatchlist.objects.filter(user=request.user).select_related("product")
+    watchlist = ProductWatchlist.objects.filter(user=request.user).select_related(
+        "product"
+    )
 
     context = {
         "user": request.user,
