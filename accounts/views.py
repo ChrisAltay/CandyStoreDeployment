@@ -20,16 +20,16 @@ def register(request):  # Register new user
         # Validation
         if not username or not password or not password2:
             messages.error(request, "All fields are required.")
-            return render(request, "accounts/register.html")
+            return render(request, "accounts/login.html", {"active_panel": "register"})
 
         if password != password2:
             messages.error(request, "Passwords do not match.")
-            return render(request, "accounts/register.html")
+            return render(request, "accounts/login.html", {"active_panel": "register"})
 
         # User existence check
         if User.objects.filter(username=username).exists():
             messages.error(request, "Username already taken.")
-            return render(request, "accounts/register.html")
+            return render(request, "accounts/login.html", {"active_panel": "register"})
 
         # Create user
         user = User.objects.create_user(
@@ -39,7 +39,7 @@ def register(request):  # Register new user
         messages.success(request, "Account created! Please log in.")
         return redirect("login")
 
-    return render(request, "accounts/register.html")
+    return render(request, "accounts/login.html", {"active_panel": "register"})
 
 
 def login_view(request):
@@ -60,7 +60,7 @@ def login_view(request):
         else:
             messages.error(request, "Invalid username or password.")
 
-    return render(request, "accounts/login.html")
+    return render(request, "accounts/login.html", {"active_panel": "login"})
 
 
 def logout_view(request):
