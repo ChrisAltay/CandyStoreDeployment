@@ -2,13 +2,181 @@
 Store signals for automatic watchlist management and email alerts
 """
 
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
-from .models import OrderItem, ProductWatchlist, Candy
+from .models import OrderItem, ProductWatchlist, Candy, Order
+
+
+@receiver(pre_save, sender=Order)
+def track_order_status_change(sender, instance, **kwargs):
+    """
+    Track order status changes by storing old status on the instance.
+    Runs before the order is saved.
+    """
+    if instance.pk:
+        try:
+            old_order = Order.objects.get(pk=instance.pk)
+            instance._old_status = old_order.status
+        except Order.DoesNotExist:
+            instance._old_status = None
+    else:
+        instance._old_status = None
+
+
+@receiver(post_save, sender=Order)
+def send_order_status_emails(sender, instance, created, **kwargs):
+    """
+    Send emails when order status changes.
+    """
+    if not instance.user or not instance.user.email:
+        return
+
+    # 1. Order Confirmation (Created)
+    if created:
+        send_order_confirmation_email(instance)
+        return
+
+    # Check for status changes
+    old_status = getattr(instance, "_old_status", None)
+    new_status = instance.status
+
+    if old_status != new_status:
+        # 2. Shipping Notification
+        if new_status == Order.STATUS_SHIPPED:
+            send_shipping_email(instance)
+
+        # 3. Delivery Notification
+        elif new_status == Order.STATUS_DELIVERED:
+            send_delivery_email(instance)
+
+        # 4. Cancellation Notification
+        elif new_status == Order.STATUS_CANCELLED:
+            send_cancellation_email(instance)
+
+
+def send_order_confirmation_email(order):
+    """Send order confirmation email"""
+    subject = f"Order Confirmation #{order.id}"
+    message = f"""
+Hi {order.user.username},
+
+Thank you for your order!
+
+Order #{order.id} has been received and is being processed.
+Total: ${order.total_price}
+
+We will notify you when it ships.
+
+Visit Keanu's Candy Store: http://localhost:8000/orders/{order.id}/
+"""
+    try:
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [order.user.email],
+            fail_silently=False,
+        )
+    except Exception as e:
+        print(f"Failed to send confirmation email: {e}")
+
+
+def send_shipping_email(order):
+    """Send shipping notification email"""
+    subject = f"Order #{order.id} Shipped!"
+    message = f"""
+Hi {order.user.username},
+
+Great news! Your order #{order.id} has been shipped.
+It is on its way to you.
+
+Track your order: http://localhost:8000/orders/{order.id}/
+"""
+    try:
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [order.user.email],
+            fail_silently=False,
+        )
+    except Exception as e:
+        print(f"Failed to send shipping email: {e}")
+
+
+def send_cancellation_email(order):
+    """Send order cancellation email"""
+    subject = f"Order #{order.id} Cancelled"
+    message = f"""
+Hi {order.user.username},
+
+Your order #{order.id} has been successfully cancelled.
+
+We have processed the cancellation and refunded any charges (if applicable) to your original payment method.
+Stock for the items has been restored.
+
+If you have any questions, please reply to this email.
+
+Visit Keanu's Candy Store: http://localhost:8000/
+"""
+    try:
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [order.user.email],
+            fail_silently=False,
+        )
+    except Exception as e:
+        print(f"Failed to send cancellation email: {e}")
+
+
+def send_delivery_email(order):
+    """Send order delivery email with special message"""
+    from django.core.mail import EmailMultiAlternatives
+    from django.template.loader import render_to_string
+    from django.utils.html import strip_tags
+
+    subject = f"Order #{order.id} Delivered! 🍬"
+
+    # HTML Content
+    html_content = f"""
+    <html>
+        <body>
+            <h2>Hi {order.user.username},</h2>
+            <p>Your order #{order.id} has arrived!</p>
+            <p>Here is a digital candy for you as a thank you for ordering:</p>
+            
+            <div style="text-align: center; margin: 20px 0; font-size: 48px;">
+                🍬🍬🍬<br>
+                <img src="https://cdn-icons-png.flaticon.com/512/2682/2682458.png" alt="Digital Candy" style="width: 100px; height: 100px;">
+                <br>🍬🍬🍬
+            </div>
+
+            <p style="font-weight: bold; color: #ff6b9d; font-size: 1.1em;">
+                We appreciate Dr. Zimeng Lyu from Kean University for generously sponsoring these sweets!
+            </p>
+
+            <p>Enjoy your sweets!</p>
+            <p><a href="http://localhost:8000/orders/{order.id}/">Visit Keanu's Candy Store</a></p>
+        </body>
+    </html>
+    """
+
+    text_content = strip_tags(html_content)
+
+    try:
+        msg = EmailMultiAlternatives(
+            subject, text_content, settings.DEFAULT_FROM_EMAIL, [order.user.email]
+        )
+        msg.attach_alternative(html_content, "text/html")
+        msg.send(fail_silently=False)
+    except Exception as e:
+        print(f"Failed to send delivery email: {e}")
 
 
 @receiver(post_save, sender=OrderItem)
