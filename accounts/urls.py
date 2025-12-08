@@ -3,6 +3,7 @@ URLs for accounts app
 """
 
 from django.urls import path
+from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
@@ -24,5 +25,21 @@ urlpatterns = [
         "account/watchlist/threshold/<int:product_id>/",
         views.update_watchlist_threshold,
         name="update_watchlist_threshold",
+    ),
+    path("account/profile/update/", views.update_profile, name="update_profile"),
+    path(
+        "account/password-change/",
+        auth_views.PasswordChangeView.as_view(
+            template_name="accounts/password_change_form.html",
+            success_url="/accounts/account/password-change/done/",
+        ),
+        name="password_change",
+    ),
+    path(
+        "account/password-change/done/",
+        auth_views.PasswordChangeDoneView.as_view(
+            template_name="accounts/password_change_done.html"
+        ),
+        name="password_change_done",
     ),
 ]

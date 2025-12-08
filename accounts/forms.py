@@ -29,5 +29,19 @@ class UserPreferencesForm(forms.ModelForm):
         labels = {
             "low_stock_email_alerts": "Email me when items I've ordered are running low",
             "restock_email_alerts": "Email me when out-of-stock items I requested are back",
-            "low_stock_threshold": "Alert me when stock is at or below",
+        }
+
+
+class UserProfileForm(forms.ModelForm):
+    """Form for updating user profile information"""
+
+    class Meta:
+        model = UserPreferences.user.field.related_model  # Get User model safely
+        fields = ["username", "email"]
+        widgets = {
+            "username": forms.TextInput(attrs={"class": "form-control"}),
+            "email": forms.EmailInput(attrs={"class": "form-control"}),
+        }
+        help_texts = {
+            "username": None,  # Remove default help text
         }

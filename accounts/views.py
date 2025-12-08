@@ -77,7 +77,7 @@ def logout_view(request):
 @login_required
 def account_page(request):
     """User account page with preferences and watchlist"""
-    from .forms import UserPreferencesForm
+    from .forms import UserPreferencesForm, UserProfileForm
     from .models import UserPreferences
     from store.models import ProductWatchlist
 
@@ -93,6 +93,7 @@ def account_page(request):
         "user": request.user,
         "preferences": preferences,
         "preferences_form": UserPreferencesForm(instance=preferences),
+        "profile_form": UserProfileForm(instance=request.user),
         "watchlist": watchlist,
     }
     return render(request, "accounts/account.html", context)
@@ -114,6 +115,22 @@ def update_preferences(request):
         else:
             print("Form errors:", form.errors)
             messages.error(request, "Error updating preferences. Please try again.")
+
+    return redirect("account")
+
+
+@login_required
+def update_profile(request):
+    """Update user profile information"""
+    from .forms import UserProfileForm
+
+    if request.method == "POST":
+        form = UserProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile updated successfully!")
+        else:
+            messages.error(request, "Error updating profile. Please check the form.")
 
     return redirect("account")
 

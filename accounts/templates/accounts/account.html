@@ -21,6 +21,29 @@
         </div>
     </div>
 
+    <!-- Profile Settings (Username, Email, Password) -->
+    <div
+        style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; color: #ff6b9d;">⚙️ Profile Settings</h3>
+        <form method="post" action="{% url 'update_profile' %}">
+            {% csrf_token %}
+
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Username</label>
+                {{ profile_form.username }}
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Email Address</label>
+                {{ profile_form.email }}
+            </div>
+
+            <button type="submit" class="btn" style="background-color: #007bff; margin-right: 1rem;">Update
+                Profile</button>
+            <a href="{% url 'password_change' %}" class="btn" style="background-color: #6c757d;">Change Password 🔒</a>
+        </form>
+    </div>
+
     <!-- Email Notification Preferences (simplified - removed global threshold) -->
     <div
         style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 2rem;">
