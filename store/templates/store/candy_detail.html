@@ -4,15 +4,145 @@
 
 {% block content %}
 <div style="max-width: 800px; margin: 0 auto;">
-    <h2>{{ candy.name }}</h2>
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+        <h2>{{ candy.name }}</h2>
+        {% if user.is_authenticated %}
+        <button id="favorite-btn" class="btn-icon" data-candy-id="{{ candy.id }}"
+            style="background: none; border: none; cursor: pointer; font-size: 2rem; padding: 0;">
+            {% if is_favorited %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#ff6b9d"
+                stroke="#ff6b9d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                </path>
+            </svg>
+            {% else %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                stroke="#ff6b9d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                </path>
+            </svg>
+            {% endif %}
+        </button>
+        {% endif %}
+    </div>
     <p><strong>Category:</strong> {{ candy.category }}</p>
     <p><strong>Description:</strong> {{ candy.description }}</p>
     <div class="price" style="font-size: 2rem; margin: 1rem 0;">${{ candy.price|floatformat:2 }}</div>
     <p><strong>Stock Available:</strong> {{ candy.stock }}</p>
-    
+
+    {% if candy.stock > 0 %}
+    <form action="{% url 'cart_add' candy.id %}" method="post" style="margin-top: 2rem;">
+        {% csrf_token %}
+        <div style="margin-bottom: 1rem;">
+            <label for="quantity" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Quantity:</label>
+            <input type="number" name="quantity" id="quantity" value="1" min="1" max="{{ candy.stock }}"
+                style="width: 100px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+            <span style="margin-left: 0.5rem; color: #666;">Max: {{ candy.stock }}</span>
+        </div>
+        <button type="submit" class="btn"
+            style="background-color: #28a745; color: white; padding: 0.75rem 2rem; font-size: 1.1rem;">
+            Add to Cart
+        </button>
+    </form>
+    {% else %}
+    <div
+        style="margin-top: 2rem; padding: 1rem; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; color: #721c24;">
+        <strong>Out of Stock</strong> - This item is currently unavailable.
+    </div>
+    {% endif %}
+
     <div style="margin-top: 2rem;">
         <a href="{% url 'home' %}" class="btn btn-secondary">Back to Store</a>
     </div>
-</div>
-{% endblock %}
 
+    <!-- Reviews Section -->
+    <div style="margin-top: 4rem; border-top: 1px solid #ddd; padding-top: 2rem;">
+        <h3>
+            Reviews & Ratings
+            (
+            {% if average_rating %}
+            {{ average_rating|floatformat:1 }} ⭐
+            {% else %}
+            No ratings yet
+            {% endif %}
+            )
+        </h3>
+
+        <!-- Add Review Form -->
+        {% if user.is_authenticated %}
+        {% if not user_review %}
+        <div
+            style="background: white; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <h4>Leave a Review</h4>
+            <form method="post" action="">
+                {% csrf_token %}
+                <input type="hidden" name="add_review" value="true">
+                <div style="margin-bottom: 1rem;">
+                    <label>Rating:</label>
+                    {{ form.rating }}
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label>Comment:</label>
+                    {{ form.comment }}
+                </div>
+                <button type="submit" class="btn">Submit Review</button>
+            </form>
+        </div>
+        {% else %}
+        <div style="margin-bottom: 2rem; padding: 1rem; background: #e9ecef; border-radius: 8px;">
+            You have already reviewed this candy. check 'My Account' to manage your reviews.
+        </div>
+        {% endif %}
+        {% else %}
+        <p><a href="{% url 'login' %}?next={{ request.path }}">Log in</a> to leave a review.</p>
+        {% endif %}
+
+        <!-- List Reviews -->
+        <div class="reviews-list">
+            {% for review in reviews %}
+            <div
+                style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <strong>{{ review.user.username }}</strong>
+                    <span style="color: #ffc107;">{{ review.rating }} ⭐</span>
+                </div>
+                <p style="color: #666; font-size: 0.9rem;">{{ review.created_at|date:"M d, Y" }}</p>
+                <p>{{ review.comment }}</p>
+            </div>
+            {% empty %}
+            <p>No reviews yet. Be the first!</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const favoriteBtn = document.getElementById('favorite-btn');
+        if (favoriteBtn) {
+            favoriteBtn.addEventListener('click', function () {
+                const candyId = this.dataset.candyId;
+                fetch(`/favorite/toggle/${candyId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    },
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        const svg = this.querySelector('svg');
+                        if (data.favorited) {
+                            svg.setAttribute('fill', '#ff6b9d');
+                        } else {
+                            svg.setAttribute('fill', 'none');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Review - Keanu's Candy Store{% endblock %}
+
+{% block content %}
+<div
+    style="max-width: 600px; margin: 0 auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <h2 style="margin-bottom: 2rem; color: #ff6b9d;">Edit Your Review</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Rating</label>
+            {{ form.rating }}
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Comment</label>
+            {{ form.comment }}
+        </div>
+
+        <div style="margin-top: 2rem;">
+            <button type="submit" class="btn">Update Review</button>
+            <a href="{% url 'account' %}" class="btn btn-secondary" style="margin-left: 1rem;">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

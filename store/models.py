@@ -31,11 +31,13 @@ class Order(models.Model):
     STATUS_CREATED = "Created"
     STATUS_SHIPPED = "Shipped"
     STATUS_DELIVERED = "Delivered"
+    STATUS_CANCELLED = "Cancelled"
 
     STATUS_CHOICES = (
         (STATUS_CREATED, "Created"),
         (STATUS_SHIPPED, "Shipped"),
         (STATUS_DELIVERED, "Delivered"),
+        (STATUS_CANCELLED, "Cancelled"),
     )
 
     user = models.ForeignKey(
@@ -55,6 +57,25 @@ class Order(models.Model):
     address = models.CharField(max_length=255, default="")
     city = models.CharField(max_length=100, default="")
     zip_code = models.CharField(max_length=20, default="")
+
+    def cancel_order(self):
+        """
+        Cancel the order and restore stock for all items.
+        Only allowed if order status is 'Created'.
+        Returns True if successful, False otherwise.
+        """
+        if self.status != self.STATUS_CREATED:
+            return False
+
+        # Restore stock for all items
+        for item in self.items.all():
+            item.product.stock += item.quantity
+            item.product.save()
+
+        # Update order status
+        self.status = self.STATUS_CANCELLED
+        self.save()
+        return True
 
     def update_status_based_on_time(self):
         """
@@ -103,3 +124,43 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"
+
+
+class Favorite(models.Model):
+    """Favorite model for users to save candies"""
+
+    user = models.ForeignKey(
+        "auth.User", on_delete=models.CASCADE, related_name="favorites"
+    )
+    candy = models.ForeignKey(
+        Candy, on_delete=models.CASCADE, related_name="favorited_by"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "candy")
+
+    def __str__(self):
+        return f"{self.user.username} - {self.candy.name}"
+
+
+class Review(models.Model):
+    """Review model for candies"""
+
+    user = models.ForeignKey(
+        "auth.User", on_delete=models.CASCADE, related_name="reviews"
+    )
+    candy = models.ForeignKey(Candy, on_delete=models.CASCADE, related_name="reviews")
+    rating = models.IntegerField(
+        choices=[(i, i) for i in range(1, 6)], default=5
+    )  # 1-5 scale
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        unique_together = ("user", "candy")  # Limit 1 review per candy per user
+
+    def __str__(self):
+        return f"{self.rating}* by {self.user.username} for {self.candy.name}"

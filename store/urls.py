@@ -18,4 +18,23 @@ urlpatterns = [
     path("inventory/add/", views.inventory_add, name="inventory_add"),
     path("inventory/update/<int:pk>/", views.inventory_update, name="inventory_update"),
     path("checkout/", views.checkout, name="checkout"),
+    path(
+        "api/order/<int:order_id>/status/",
+        views.order_status_api,
+        name="order_status_api",
+    ),
+    path("orders/<int:order_id>/cancel/", views.cancel_order, name="cancel_order"),
+    path("orders/<int:order_id>/reorder/", views.reorder, name="reorder"),
+    path(
+        "orders/<int:order_id>/invoice/",
+        views.download_invoice,
+        name="download_invoice",
+    ),
+    path(
+        "favorite/toggle/<int:candy_id>/",
+        views.toggle_favorite,
+        name="toggle_favorite",
+    ),
+    path("review/edit/<int:review_id>/", views.review_edit, name="review_edit"),
+    path("review/delete/<int:review_id>/", views.review_delete, name="review_delete"),
 ]

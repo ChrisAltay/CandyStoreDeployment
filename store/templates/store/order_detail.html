@@ -224,92 +224,156 @@
         <a href="{% url 'order_history' %}" class="nav-back">&larr; Back to History</a>
     </div>
 
-    <!-- Status Tracker -->
-    <div class="status-container">
-        <h2 class="tracker-header">Order Status</h2>
+    <!-- Action Buttons -->
+    <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+        {% if order.status == 'Created' %}
+        <button onclick="showCancelModal()"
+            style="padding: 0.75rem 1.5rem; background-color: #ef4444; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;">
+            Cancel Order
+        </button>
+        {% endif %}
 
-        <div class="progress-track">
-            <!-- Lines -->
-            <div class="progress-line-bg"></div>
-            <div class="progress-line-active" id="progress-line"></div>
+        <a href="{% url 'reorder' order.id %}"
+            style="padding: 0.75rem 1.5rem; background-color: #10b981; color: white; border: none; border-radius: 6px; font-weight: 600; text-decoration: none; display: inline-block; transition: background-color 0.2s;">
+            Reorder
+        </a>
 
-            <!-- Step 1: Created -->
-            <div class="step-item">
-                <div id="step-created-icon" class="step-icon completed">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                </div>
-                <div class="step-label">Created</div>
-                <div class="step-time local-time" id="time-created" data-timestamp="{{ order.created_at|date:'c' }}">
-                </div>
-            </div>
+        <a href="{% url 'download_invoice' order.id %}"
+            style="padding: 0.75rem 1.5rem; background-color: #4f46e5; color: white; border: none; border-radius: 6px; font-weight: 600; text-decoration: none; display: inline-block; transition: background-color 0.2s;">
+            Download Invoice
+        </a>
+    </div>
 
-            <!-- Step 2: Shipped -->
-            <div class="step-item">
-                <div id="step-shipped-icon" class="step-icon {% if order.shipped_at %}completed{% endif %}">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <span>2</span>
-                </div>
-                <div class="step-label">Shipped</div>
-                <div class="step-time local-time" id="time-shipped" data-timestamp="{{ order.shipped_at|date:'c' }}">
-                </div>
-            </div>
-
-            <!-- Step 3: Delivered -->
-            <div class="step-item">
-                <div id="step-delivered-icon" class="step-icon {% if order.delivered_at %}completed{% endif %}">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <span>3</span>
-                </div>
-                <div class="step-label">Delivered</div>
-                <div class="step-time local-time" id="time-delivered"
-                    data-timestamp="{{ order.delivered_at|date:'c' }}"></div>
+    <!-- Cancel Confirmation Modal -->
+    <div id="cancelModal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 2rem; border-radius: 8px; max-width: 400px; text-align: center;">
+            <h3 style="margin-top: 0; color: #1f2937;">Cancel Order?</h3>
+            <p style="color: #6b7280; margin-bottom: 1.5rem;">Are you sure you want to cancel this order? Stock will be
+                restored.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button onclick="hideCancelModal()"
+                    style="padding: 0.5rem 1.5rem; background-color: #e5e7eb; color: #1f2937; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                    No, Keep Order
+                </button>
+                <form method="post" action="{% url 'cancel_order' order.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit"
+                        style="padding: 0.5rem 1.5rem; background-color: #ef4444; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                        Yes, Cancel
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- Tracking Map -->
-    <div class="map-container">
-        <h2 class="tracker-header" style="margin-bottom: 1rem;">Live Tracking Simulation</h2>
-        <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;">Visualizing package journey from
-            Distribution Center to Customer Zone.</p>
-        <div id="tracking-map"></div>
-    </div>
+</div>
 
-    <!-- Order Items -->
-    <div class="items-container">
-        <div class="items-header">
-            <h2 style="font-size: 1.125rem; font-weight: 600; color: #374151; margin:0;">Items Ordered</h2>
-            <span style="font-weight: 500; color: #4b5563;">Total: ${{ order.total_price }}</span>
+<!-- Status Tracker -->
+<div class="status-container">
+    {% if order.status == 'Cancelled' %}
+    <div
+        style="background-color: #fee2e2; border-left: 4px solid #dc2626; padding: 1rem; margin-bottom: 2rem; border-radius: 4px;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <svg style="width: 24px; height: 24px; color: #dc2626;" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            <div>
+                <h3 style="margin: 0; color: #991b1b; font-size: 1.125rem;">Order Cancelled</h3>
+                <p style="margin: 0.25rem 0 0 0; color: #7f1d1d; font-size: 0.875rem;">
+                    This order was cancelled on
+                    <span class="local-time" data-timestamp="{{ order.updated_at|date:'c' }}"></span>
+                </p>
+            </div>
         </div>
-        <ul class="items-list">
-            {% for item in order.items.all %}
-            <li class="item-row">
-                <div class="item-info">
-                    {% if item.product.image_url %}
-                    <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="item-img">
-                    {% else %}
-                    <div class="item-placeholder">No Img</div>
-                    {% endif %}
-                    <div>
-                        <h3 style="font-size: 1.125rem; font-weight: 500; color: #111827; margin: 0 0 0.25rem 0;">
-                            {{ item.product.name }}
-                        </h3>
-                        <p style="color: #6b7280; font-size: 0.875rem; margin: 0;">Qty: {{ item.quantity }}</p>
-                    </div>
-                </div>
-                <div style="text-align: right;">
-                    <p style="font-weight: 500; color: #1f2937; margin:0;">${{ item.price }}</p>
-                </div>
-            </li>
-            {% endfor %}
-        </ul>
     </div>
+    {% endif %}
+
+    <h2 class="tracker-header">Order Status</h2>
+
+    <div class="progress-track">
+        <!-- Lines -->
+        <div class="progress-line-bg"></div>
+        <div class="progress-line-active" id="progress-line"></div>
+
+        <!-- Step 1: Created -->
+        <div class="step-item">
+            <div id="step-created-icon" class="step-icon completed">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <div class="step-label">Created</div>
+            <div class="step-time local-time" id="time-created" data-timestamp="{{ order.created_at|date:'c' }}">
+            </div>
+        </div>
+
+        <!-- Step 2: Shipped -->
+        <div class="step-item">
+            <div id="step-shipped-icon" class="step-icon {% if order.shipped_at %}completed{% endif %}">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>2</span>
+            </div>
+            <div class="step-label">Shipped</div>
+            <div class="step-time local-time" id="time-shipped" data-timestamp="{{ order.shipped_at|date:'c' }}">
+            </div>
+        </div>
+
+        <!-- Step 3: Delivered -->
+        <div class="step-item">
+            <div id="step-delivered-icon" class="step-icon {% if order.delivered_at %}completed{% endif %}">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>3</span>
+            </div>
+            <div class="step-label">Delivered</div>
+            <div class="step-time local-time" id="time-delivered" data-timestamp="{{ order.delivered_at|date:'c' }}">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tracking Map -->
+<div class="map-container">
+    <h2 class="tracker-header" style="margin-bottom: 1rem;">Live Tracking Simulation</h2>
+    <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;">Visualizing package journey from
+        Distribution Center to Customer Zone.</p>
+    <div id="tracking-map"></div>
+</div>
+
+<!-- Order Items -->
+<div class="items-container">
+    <div class="items-header">
+        <h2 style="font-size: 1.125rem; font-weight: 600; color: #374151; margin:0;">Items Ordered</h2>
+        <span style="font-weight: 500; color: #4b5563;">Total: ${{ order.total_price }}</span>
+    </div>
+    <ul class="items-list">
+        {% for item in order.items.all %}
+        <li class="item-row">
+            <div class="item-info">
+                {% if item.product.image_url %}
+                <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="item-img">
+                {% else %}
+                <div class="item-placeholder">No Img</div>
+                {% endif %}
+                <div>
+                    <h3 style="font-size: 1.125rem; font-weight: 500; color: #111827; margin: 0 0 0.25rem 0;">
+                        {{ item.product.name }}
+                    </h3>
+                    <p style="color: #6b7280; font-size: 0.875rem; margin: 0;">Qty: {{ item.quantity }}</p>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <p style="font-weight: 500; color: #1f2937; margin:0;">${{ item.price }}</p>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
 </div>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -318,6 +382,22 @@
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Convert all timestamps to local timezone
+        document.querySelectorAll('.local-time').forEach(function (element) {
+            const timestamp = element.getAttribute('data-timestamp');
+            if (timestamp && timestamp !== 'None') {
+                const date = new Date(timestamp);
+                element.textContent = date.toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+            }
+        });
+
         const orderId = "{{ order.id }}";
         const factoryCoords = [40.7128, -74.0060];
         const destCoords = [42.3601, -71.0589];
@@ -425,5 +505,14 @@
         setInterval(fetchStatus, 3000);
     }
     });
+
+    // Modal functions
+    function showCancelModal() {
+        document.getElementById('cancelModal').style.display = 'flex';
+    }
+
+    function hideCancelModal() {
+        document.getElementById('cancelModal').style.display = 'none';
+    }
 </script>
 {% endblock %}

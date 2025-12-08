@@ -4,12 +4,14 @@ Store views for browsing candies
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST
-from .models import Candy, Order, OrderItem
+from django.http import HttpResponse, JsonResponse
+from .models import Candy, Order, OrderItem, Favorite, Review
+from django.db import models
 from .cart import Cart
 
 
 from django.contrib.admin.views.decorators import staff_member_required
-from .forms import CandyForm, CheckoutForm
+from .forms import CandyForm, CheckoutForm, ReviewForm
 
 
 def home(request):
@@ -24,8 +26,43 @@ def home(request):
 def candy_detail(request, candy_id):
     """Detail page for a single candy"""
     candy = get_object_or_404(Candy, id=candy_id)
+
+    # Favorites logic
+    is_favorited = False
+    if request.user.is_authenticated:
+        is_favorited = Favorite.objects.filter(user=request.user, candy=candy).exists()
+
+    # Reviews logic
+    reviews = candy.reviews.all()
+    average_rating = reviews.aggregate(models.Avg("rating"))["rating__avg"]
+
+    user_review = None
+    if request.user.is_authenticated:
+        user_review = reviews.filter(user=request.user).first()
+
+    # Handle Add Review
+    if request.method == "POST" and "add_review" in request.POST:
+        if not request.user.is_authenticated:
+            return redirect("login")
+
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.user = request.user
+            review.candy = candy
+            review.save()
+            messages.success(request, "Review added successfully!")
+            return redirect("candy_detail", candy_id=candy.id)
+    else:
+        form = ReviewForm()
+
     context = {
         "candy": candy,
+        "is_favorited": is_favorited,
+        "reviews": reviews,
+        "average_rating": average_rating,
+        "user_review": user_review,
+        "form": form,
     }
     return render(request, "store/candy_detail.html", context)
 
@@ -115,6 +152,24 @@ def order_detail(request, order_id):
     return render(request, "store/order_detail.html", {"order": order})
 
 
+@login_required(login_url="login")
+def order_status_api(request, order_id):
+    """API endpoint for live order status updates"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    # Trigger simulation update
+    order.update_status_based_on_time()
+
+    data = {
+        "status": order.status,
+        "shipped_at": order.shipped_at.isoformat() if order.shipped_at else None,
+        "delivered_at": order.delivered_at.isoformat() if order.delivered_at else None,
+        "is_shipped": order.status in [Order.STATUS_SHIPPED, Order.STATUS_DELIVERED],
+        "is_delivered": order.status == Order.STATUS_DELIVERED,
+    }
+    return JsonResponse(data)
+
+
 @staff_member_required
 def inventory_list(request):
     """List all products for inventory management"""
@@ -186,3 +241,227 @@ def checkout(request):
         form = CheckoutForm()
 
     return render(request, "store/checkout.html", {"cart": cart, "form": form})
+
+
+@require_POST
+@login_required(login_url="login")
+def cancel_order(request, order_id):
+    """Cancel an order and restore stock"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    if order.cancel_order():
+        messages.success(
+            request,
+            f"Order #{order.id} has been cancelled successfully. Stock has been restored.",
+        )
+    else:
+        messages.error(
+            request,
+            f"Order #{order.id} cannot be cancelled. Only orders with 'Created' status can be cancelled.",
+        )
+
+    return redirect("order_detail", order_id=order.id)
+
+
+@login_required(login_url="login")
+def reorder(request, order_id):
+    """Copy all items from a previous order to the cart"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    cart = Cart(request)
+
+    added_items = []
+    out_of_stock_items = []
+
+    for item in order.items.all():
+        if item.product.stock >= item.quantity:
+            cart.add(
+                product=item.product, quantity=item.quantity, override_quantity=False
+            )
+            added_items.append(item.product.name)
+        else:
+            out_of_stock_items.append(
+                f"{item.product.name} (only {item.product.stock} available)"
+            )
+
+    if added_items:
+        messages.success(request, f"Added to cart: {', '.join(added_items)}")
+
+    if out_of_stock_items:
+        messages.warning(
+            request,
+            f"Out of stock or insufficient quantity: {', '.join(out_of_stock_items)}",
+        )
+
+    return redirect("cart_detail")
+
+
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.enums import TA_CENTER, TA_RIGHT
+from io import BytesIO
+
+
+@login_required(login_url="login")
+def download_invoice(request, order_id):
+    """Generate and download PDF invoice for an order"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    # Create PDF in memory
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=letter,
+        rightMargin=72,
+        leftMargin=72,
+        topMargin=72,
+        bottomMargin=18,
+    )
+
+    # Container for PDF elements
+    elements = []
+    styles = getSampleStyleSheet()
+
+    # Custom styles
+    title_style = ParagraphStyle(
+        "CustomTitle",
+        parent=styles["Heading1"],
+        fontSize=24,
+        textColor=colors.HexColor("#4f46e5"),
+        spaceAfter=30,
+        alignment=TA_CENTER,
+    )
+
+    # Title
+    elements.append(Paragraph("INVOICE", title_style))
+    elements.append(Spacer(1, 12))
+
+    # Order Information
+    order_info = [
+        ["Order Number:", f"#{order.id}"],
+        ["Order Date:", order.created_at.strftime("%B %d, %Y at %I:%M %p")],
+        ["Status:", order.status],
+        ["Customer:", order.full_name or request.user.username],
+    ]
+
+    if order.address:
+        order_info.append(
+            ["Shipping Address:", f"{order.address}, {order.city} {order.zip_code}"]
+        )
+
+    info_table = Table(order_info, colWidths=[2 * inch, 4 * inch])
+    info_table.setStyle(
+        TableStyle(
+            [
+                ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+                ("FONTNAME", (1, 0), (1, -1), "Helvetica"),
+                ("FONTSIZE", (0, 0), (-1, -1), 10),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 12),
+            ]
+        )
+    )
+    elements.append(info_table)
+    elements.append(Spacer(1, 20))
+
+    # Items Table
+    items_data = [["Item", "Quantity", "Unit Price", "Total"]]
+    for item in order.items.all():
+        items_data.append(
+            [
+                item.product.name,
+                str(item.quantity),
+                f"${item.price}",
+                f"${item.price * item.quantity:.2f}",
+            ]
+        )
+
+    # Add total row
+    items_data.append(["", "", "Total:", f"${order.total_price}"])
+
+    items_table = Table(
+        items_data, colWidths=[3 * inch, 1 * inch, 1.2 * inch, 1.2 * inch]
+    )
+    items_table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#4f46e5")),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("FONTSIZE", (0, 0), (-1, 0), 12),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+                ("BACKGROUND", (0, 1), (-1, -2), colors.beige),
+                ("GRID", (0, 0), (-1, -2), 1, colors.black),
+                ("FONTNAME", (0, -1), (-1, -1), "Helvetica-Bold"),
+                ("FONTSIZE", (0, -1), (-1, -1), 12),
+                ("LINEABOVE", (2, -1), (-1, -1), 2, colors.black),
+            ]
+        )
+    )
+    elements.append(items_table)
+
+    # Build PDF
+    doc.build(elements)
+
+    # Get PDF from buffer
+    pdf = buffer.getvalue()
+    buffer.close()
+
+    # Create response
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = (
+        f'attachment; filename="invoice_order_{order.id}.pdf"'
+    )
+    response.write(pdf)
+
+    return response
+
+
+@login_required(login_url="login")
+@require_POST
+def toggle_favorite(request, candy_id):
+    """Toggle favorite status for a candy"""
+    candy = get_object_or_404(Candy, id=candy_id)
+    favorite, created = Favorite.objects.get_or_create(user=request.user, candy=candy)
+
+    if not created:
+        favorite.delete()
+        favorited = False
+    else:
+        favorited = True
+
+    return JsonResponse({"favorited": favorited})
+
+
+@login_required(login_url="login")
+def review_edit(request, review_id):
+    """Edit an existing review"""
+    review = get_object_or_404(Review, id=review_id, user=request.user)
+
+    if request.method == "POST":
+        form = ReviewForm(request.POST, instance=review)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Review updated successfully!")
+            return redirect("account")
+    else:
+        form = ReviewForm(instance=review)
+
+    return render(
+        request, "store/review_form.html", {"form": form, "title": "Edit Review"}
+    )
+
+
+@login_required(login_url="login")
+def review_delete(request, review_id):
+    """Delete a review"""
+    review = get_object_or_404(Review, id=review_id, user=request.user)
+
+    if request.method == "POST":
+        review.delete()
+        messages.success(request, "Review deleted successfully!")
+        return redirect("account")
+
+    return render(request, "store/review_confirm_delete.html", {"review": review})
