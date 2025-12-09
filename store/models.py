@@ -96,7 +96,7 @@ class Order(models.Model):
                 self.status = self.STATUS_SHIPPED
                 # Backdate the timestamp to when it 'should' have happened
                 self.shipped_at = self.created_at + datetime.timedelta(minutes=1)
-                updated = True
+                self.save()
 
         if diff >= datetime.timedelta(minutes=2):
             if self.status in [self.STATUS_CREATED, self.STATUS_SHIPPED]:
@@ -105,10 +105,7 @@ class Order(models.Model):
                 if not self.shipped_at:
                     self.shipped_at = self.created_at + datetime.timedelta(minutes=1)
                 self.delivered_at = self.created_at + datetime.timedelta(minutes=2)
-                updated = True
-
-        if updated:
-            self.save()
+                self.save()
 
     def __str__(self):
         return f"Order {self.id} - {self.status}"
