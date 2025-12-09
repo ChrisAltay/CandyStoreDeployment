@@ -1,53 +1,151 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Home - Keanu's Candy Store{% endblock %}
 
 {% block content %}
-<h2>Welcome to Keanu's Candy Store!</h2>
-<p>Browse our delicious selection of candies below.</p>
-
-<div
-    style="margin: 2rem 0; padding: 1.5rem; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-    <h3 style="margin-bottom: 1rem; color: #ff6b9d;">Quick Navigation</h3>
-    <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
-        <a href="{% url 'home' %}" class="btn" style="background-color: #ff6b9d;">🏠 Home</a>
-        {% if user.is_authenticated %}
-        <a href="{% url 'account' %}" class="btn" style="background-color: #28a745;">👤 My Account</a>
-        <a href="{% url 'logout' %}" class="btn" style="background-color: #dc3545;">🚪 Logout</a>
-        {% else %}
-        <a href="{% url 'login' %}" class="btn" style="background-color: #007bff;">🔐 Login</a>
-        <a href="{% url 'register' %}" class="btn" style="background-color: #17a2b8;">📝 Register</a>
-        {% endif %}
-        {% if user.is_staff %}
-        <a href="{% url 'inventory_list' %}" class="btn" style="background-color: #fd7e14;">📦 Manage Inventory</a>
-        <a href="/admin/" class="btn" style="background-color: #6f42c1;">⚙️ Admin Panel</a>
-        {% endif %}
+<div id="candy-wrapper">
+    <div class="wrapper-half wrapper-left"></div>
+    <div class="wrapper-half wrapper-right"></div>
+</div>
+<div class="hero-banner">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <h2>Welcome to Keanu's Candy Store!</h2>
     </div>
 </div>
+
+<p class="page-subtitle">Browse our delicious selection of candies below.</p>
 
 <div class="candy-grid">
     {% for candy in candies %}
     <div class="candy-card">
+
+        {% if candy.name == "Caramel" %}
+        <img src="{% static 'store/images/caramel.png' %}" alt="Caramel" class="candy-image">
+        {% elif candy.name == "Chocolate Bar" %}
+        <img src="{% static 'store/images/Chocolate_Bar.png' %}" alt="Chocolate Bar" class="candy-image">
+        {% elif candy.name == "Dark Chocolate" %}
+        <img src="{% static 'store/images/Dark_Chocolate.webp' %}" alt="Dark Chocolate" class="candy-image">
+        {% elif candy.name == "Gummy Bears" %}
+        <img src="{% static 'store/images/Gummy_Bears.webp' %}" alt="Gummy Bears" class="candy-image">
+        {% elif candy.name == "Jelly Beans" %}
+        <img src="{% static 'store/images/Jelly_Beans.jpg' %}" alt="Jelly Beans" class="candy-image">
+        {% elif candy.name == "Lollipop" %}
+        <img src="{% static 'store/images/Lollipop.webp' %}" alt="Lollipop" class="candy-image">
+        {% elif candy.name == "Peppermint" %}
+        <img src="{% static 'store/images/Peppermint.webp' %}" alt="Peppermint" class="candy-image">
+        {% elif candy.name == "Sour Patch Kids" %}
+        <img src="{% static 'store/images/SourPatch_kids.webp' %}" alt="Sour Patch Kids" class="candy-image">
+        {% endif %}
+
+    <div class="card-content">
         <h3>{{ candy.name }}</h3>
         <p>{{ candy.description }}</p>
         <div class="price">${{ candy.price|floatformat:2 }}</div>
         <div class="stock">Stock: {{ candy.stock }}</div>
-        <div style="margin-top: 1rem;">
-            <a href="{% url 'candy_detail' candy.id %}" class="btn">View Details</a>
+
+        <div class="card-actions">
+            <a href="{% url 'candy_detail' candy.id %}" class="btn btn-secondary">View Details</a>
+
             {% if candy.stock > 0 %}
-            <form action="{% url 'cart_add' candy.id %}" method="post"
-                style="display: inline-block; margin-left: 0.5rem;">
-                {% csrf_token %}
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn" style="background-color: #28a745;">Add to Cart</button>
-            </form>
+                <form action="{% url 'cart_add' candy.id %}" method="post" class="add-to-cart-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" class="btn btn-primary">Add to Cart</button>
+                </form>
             {% else %}
-            <button class="btn" style="background-color: #6c757d; cursor: not-allowed;" disabled>Out of Stock</button>
+                <button class="btn btn-secondary"
+                        style="flex: 1; opacity: 0.6; cursor: not-allowed;"
+                        disabled>
+                    Out of Stock
+                </button>
             {% endif %}
         </div>
     </div>
-    {% empty %}
-    <p>No candies available at the moment.</p>
-    {% endfor %}
 </div>
+{% empty %}
+<p>No candies available at the moment.</p>
+{% endfor %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Animation Logic
+        const wrapper = document.getElementById('candy-wrapper');
+        if (wrapper) {
+            setTimeout(() => {
+                wrapper.classList.add('wrapper-open');
+            }, 500); // Small delay before opening
+
+            setTimeout(() => {
+                wrapper.style.display = 'none';
+            }, 2000); // Wait for transition to finish
+        }
+
+        const searchInput = document.getElementById('candySearch');
+        const candyList = document.getElementById('candyList');
+        const candyCards = document.querySelectorAll('.candy-card');
+        const candyGrid = document.querySelector('.candy-grid');
+
+        // Populate datalist
+        candyCards.forEach(card => {
+            const name = card.querySelector('h3').textContent.trim();
+            const option = document.createElement('option');
+            option.value = name;
+            candyList.appendChild(option);
+        });
+
+        // Search handler
+        searchInput.addEventListener('input', function (e) {
+            const searchTerm = e.target.value.toLowerCase().trim();
+
+            // If empty, show all
+            if (!searchTerm) {
+                candyCards.forEach(card => card.style.display = 'flex');
+                return;
+            }
+
+            let foundExactMatch = false;
+
+            candyCards.forEach(card => {
+                const name = card.querySelector('h3').textContent.trim().toLowerCase();
+
+                // Show only if matches (filtering)
+                if (name.includes(searchTerm)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+
+                // Check for exact match (from datalist selection)
+                if (name === searchTerm) {
+                    foundExactMatch = true;
+                    // Scroll to it
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Highlight effect
+                    card.style.transform = 'scale(1.05)';
+                    card.style.boxShadow = '0 0 0 4px #2563eb';
+                    setTimeout(() => {
+                        card.style.transform = '';
+                        card.style.boxShadow = '';
+                    }, 2000);
+                }
+            });
+
+            // If we selected a specific candy (autofill), hide others strictly
+            const isSelectedFromList = Array.from(candyList.options).some(opt => opt.value.toLowerCase() === searchTerm);
+            if (isSelectedFromList) {
+                candyCards.forEach(card => {
+                    const name = card.querySelector('h3').textContent.trim().toLowerCase();
+                    if (name === searchTerm) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+        });
+    });
+</script>
 {% endblock %}
