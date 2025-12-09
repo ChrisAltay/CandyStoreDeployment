@@ -5,8 +5,13 @@ URLs for accounts app
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
+from . import admin_views
 
 urlpatterns = [
+    # Admin URLs
+    path("admin/", admin_views.admin_dashboard, name="admin_dashboard"),
+    path("admin/users/", admin_views.user_list, name="user_list"),
+    path("admin/users/<int:pk>/delete/", admin_views.user_delete, name="user_delete"),
     path("register/", views.register, name="register"),
     path("login/", views.login_view, name="login"),
     path("logout/", views.logout_view, name="logout"),

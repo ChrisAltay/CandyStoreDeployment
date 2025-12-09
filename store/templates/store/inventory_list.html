@@ -3,13 +3,69 @@
 {% block title %}Inventory Management - Keanu's Candy Store{% endblock %}
 
 {% block content %}
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+<style>
+    /* Responsive Table to Cards Transformation */
+    @media (max-width: 768px) {
+        .responsive-table thead {
+            display: none;
+        }
+
+        .responsive-table,
+        .responsive-table tbody,
+        .responsive-table tr,
+        .responsive-table td {
+            display: block;
+            width: 100%;
+        }
+
+        .responsive-table tr {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .responsive-table td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            text-align: right;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .responsive-table td:last-child {
+            border-bottom: none;
+            justify-content: flex-end;
+            padding-top: 1rem;
+            gap: 0.5rem;
+        }
+
+        .responsive-table td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: #4b5563;
+            text-align: left;
+            margin-right: 1rem;
+        }
+
+        .responsive-table td[data-label="Actions"]::before {
+            display: none;
+        }
+    }
+</style>
+
+<div
+    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
     <h2>📦 Inventory Management</h2>
     <a href="{% url 'inventory_add' %}" class="btn" style="background-color: #28a745;">+ Add New Product</a>
 </div>
 
-<div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-    <table style="width: 100%; border-collapse: collapse;">
+<div style="width: 100%;">
+    <table class="responsive-table"
+        style="width: 100%; border-collapse: separate; border-spacing: 0; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
         <thead>
             <tr style="background-color: #f8f9fa;">
                 <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6;">Name</th>
@@ -22,16 +78,17 @@
         <tbody>
             {% for candy in candies %}
             <tr>
-                <td style="padding: 1rem; border-bottom: 1px solid #dee2e6;">{{ candy.name }}</td>
-                <td style="padding: 1rem; border-bottom: 1px solid #dee2e6;">{{ candy.category }}</td>
-                <td style="padding: 1rem; border-bottom: 1px solid #dee2e6;">${{ candy.price }}</td>
-                <td style="padding: 1rem; border-bottom: 1px solid #dee2e6;">
+                <td data-label="Name" style="padding: 1rem; border-bottom: 1px solid #dee2e6;">{{ candy.name }}</td>
+                <td data-label="Category" style="padding: 1rem; border-bottom: 1px solid #dee2e6;">{{ candy.category }}
+                </td>
+                <td data-label="Price" style="padding: 1rem; border-bottom: 1px solid #dee2e6;">${{ candy.price }}</td>
+                <td data-label="Stock" style="padding: 1rem; border-bottom: 1px solid #dee2e6;">
                     {% if candy.stock < 10 %} <span style="color: red; font-weight: bold;">{{ candy.stock }}</span>
                         {% else %}
                         {{ candy.stock }}
                         {% endif %}
                 </td>
-                <td style="padding: 1rem; border-bottom: 1px solid #dee2e6;">
+                <td data-label="Actions" style="padding: 1rem; border-bottom: 1px solid #dee2e6;">
                     <a href="{% url 'inventory_update' candy.id %}" class="btn"
                         style="background-color: #007bff; padding: 0.5rem 1rem; font-size: 0.9rem;">Edit</a>
                     <a href="{% url 'candy_detail' candy.id %}" class="btn"

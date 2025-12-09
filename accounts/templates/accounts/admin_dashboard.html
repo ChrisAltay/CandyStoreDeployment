@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Keanu's Candy Store{% endblock %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto;">
+    <h1
+        style="margin-bottom: 2rem; color: #1e40af; border-bottom: 3px solid #3b82f6; padding-bottom: 0.5rem; display: inline-block;">
+        Admin Dashboard
+    </h1>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+
+        <!-- Inventory Card -->
+        <a href="{% url 'inventory_list' %}" style="text-decoration: none; color: inherit;">
+            <div class="admin-card"
+                style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s; height: 100%; display: flex; flex-direction: column; align-items: center; text-align: center;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
+                <h2 style="color: #1f2937; margin-bottom: 0.5rem;">Inventory Management</h2>
+                <p style="color: #6b7280;">Add, update, and track candy stock and prices.</p>
+                <span
+                    style="margin-top: auto; display: inline-block; background: #eff6ff; color: #2563eb; padding: 0.5rem 1rem; border-radius: 999px; font-weight: 600; font-size: 0.9rem;">Manage
+                    Inventory &rarr;</span>
+            </div>
+        </a>
+
+        <!-- Users Card -->
+        <a href="{% url 'user_list' %}" style="text-decoration: none; color: inherit;">
+            <div class="admin-card"
+                style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s; height: 100%; display: flex; flex-direction: column; align-items: center; text-align: center;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">👥</div>
+                <h2 style="color: #1f2937; margin-bottom: 0.5rem;">User Management</h2>
+                <p style="color: #6b7280;">View user accounts and manage permissions.</p>
+                <span
+                    style="margin-top: auto; display: inline-block; background: #eff6ff; color: #2563eb; padding: 0.5rem 1rem; border-radius: 999px; font-weight: 600; font-size: 0.9rem;">Manage
+                    Users &rarr;</span>
+            </div>
+        </a>
+
+    </div>
+</div>
+
+<style>
+    .admin-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}
