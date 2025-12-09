@@ -63,11 +63,14 @@
         width: 50%;
         opacity: 0;
         z-index: 1;
+        visibility: hidden;
     }
 
     /* Active Animation States */
     .auth-container.right-panel-active .sign-in-container {
         transform: translateX(100%);
+        visibility: hidden;
+        opacity: 0;
     }
 
     .auth-container.right-panel-active .sign-up-container {
@@ -75,6 +78,7 @@
         opacity: 1;
         z-index: 5;
         animation: show 0.6s;
+        visibility: visible;
     }
 
     @keyframes show {
@@ -83,12 +87,14 @@
         49.99% {
             opacity: 0;
             z-index: 1;
+            visibility: hidden;
         }
 
         50%,
         100% {
             opacity: 1;
             z-index: 5;
+            visibility: visible;
         }
     }
 
@@ -220,6 +226,7 @@
             top: 0;
             left: 0;
             pointer-events: none;
+            display: none;
         }
 
         /* When sign-up is active */
@@ -230,6 +237,7 @@
             top: 0;
             left: 0;
             pointer-events: none;
+            display: none;
         }
 
         .auth-container.right-panel-active .sign-up-container {
@@ -237,6 +245,7 @@
             z-index: 2;
             position: relative;
             pointer-events: auto;
+            display: flex;
         }
 
         /* Overlay container - positioned ABOVE forms */
