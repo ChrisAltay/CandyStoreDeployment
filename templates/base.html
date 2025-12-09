@@ -59,6 +59,20 @@
             background-color: rgba(255, 255, 255, 0.1);
         }
 
+        /* Admin Tag */
+        .admin-badge {
+            background-color: #fef08a;
+            /* Yellow 200 */
+            color: #854d0e;
+            /* Yellow 800 */
+            font-size: 0.75rem;
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-weight: 700;
+            vertical-align: middle;
+            margin-left: 0.5rem;
+        }
+
         .user-info {
             display: flex;
             align-items: center;
@@ -879,6 +893,13 @@
         </div>
 
         <nav class="nav">
+            {% if user.is_staff %}
+            <a href="{% url 'admin_dashboard' %}" style="display: flex; align-items: center;">
+                Admin
+                <span class="admin-badge">DASHBOARD</span>
+            </a>
+            {% endif %}
+
             <a href="{% url 'home' %}">Home</a>
             <a href="{% url 'cart_detail' %}">
                 🛒 Cart
@@ -933,6 +954,10 @@
     <div class="mobile-menu">
         <div class="mobile-nav-links">
             <a href="{% url 'home' %}">Home</a>
+            {% if user.is_staff %}
+            <a href="{% url 'admin_dashboard' %}" style="background-color: #f59e0b; border: 1px solid #d97706;">Admin
+                Dashboard</a>
+            {% endif %}
             <a href="{% url 'cart_detail' %}">
                 🛒 Cart
                 {% with cart_count=cart|length %}

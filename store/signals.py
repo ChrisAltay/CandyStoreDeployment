@@ -197,59 +197,90 @@ def send_delivery_email(order):
 def check_and_send_low_stock_alerts(sender, instance, created, **kwargs):
     """
     Automatically send low stock alerts when product stock is updated.
-    Checks all users watching this product and sends alerts if needed.
+    Checks:
+    1. Users who have PURCHASED this product (Default threshold).
+    2. Users who are WATCHING this product (Custom threshold).
     """
     if created:
-        return  # Don't send alerts for newly created products
+        return
 
-    # Get all users watching this product
+    from django.contrib.auth import get_user_model
+    from .models import ProductWatchlist
+
+    User = get_user_model()
+
+    # Track who to notify and WHY (Watcher vs Buyer)
+    # targets[user_id] = {
+    #    'user': user_obj,
+    #    'threshold': int,
+    #    'type': 'watchlist' | 'history'
+    # }
+    targets = {}
+
+    # 1. Check Purchase History (Base layer)
+    # Users who bought -> 'history' type
+    past_buyers = (
+        User.objects.filter(
+            order__items__product=instance, preferences__low_stock_email_alerts=True
+        )
+        .distinct()
+        .select_related("preferences")
+    )
+
+    for user in past_buyers:
+        threshold = user.preferences.low_stock_threshold or 3
+        # Pre-populate as history
+        targets[user.id] = {"user": user, "threshold": threshold, "type": "history"}
+
+    # 2. Check Watchlist (Overrides History)
     watchers = ProductWatchlist.objects.filter(product=instance).select_related(
         "user", "user__preferences"
     )
 
-    for watcher in watchers:
-        # Check if user has low stock alerts enabled
-        try:
-            if hasattr(watcher.user, "preferences"):
-                preferences = watcher.user.preferences
-                if not preferences.low_stock_email_alerts:
-                    continue
-                # Get threshold
-                pref_threshold = preferences.low_stock_threshold
-            else:
-                # Default behavior if no prefs: Alerts ON, Threshold 3
-                pref_threshold = 3
-        except Exception as e:
-            print(f"Pref Error: {str(e)}")
-            continue
+    for item in watchers:
+        user = item.user
 
-        # Determine threshold
-        threshold = watcher.custom_threshold or pref_threshold
-
-        # Check if stock is at or below threshold
-        if instance.stock <= threshold:
-            # Check if we've notified recently (within last 24 hours)
-            # if watcher.last_notified:
-            #     time_since_last = timezone.now() - watcher.last_notified
-            #     if time_since_last < timedelta(hours=24):
-            #         continue  # Skip if notified recently
-
-            # Send email alert
-            if watcher.user.email:
-                send_low_stock_alert_email(
-                    watcher.user, instance, instance.stock, threshold
-                )
-
-                # Update last_notified
-                watcher.last_notified = timezone.now()
-                watcher.save()
+        # Determine base preference threshold
+        if hasattr(user, "preferences"):
+            pref_threshold = user.preferences.low_stock_threshold or 3
         else:
-            pass
+            pref_threshold = 3
+
+        # Watchlist logic uses custom threshold if set
+        final_threshold = (
+            item.custom_threshold
+            if item.custom_threshold is not None
+            else pref_threshold
+        )
+
+        # Overwrite/Set as 'watchlist' type (Priority)
+        targets[user.id] = {
+            "user": user,
+            "threshold": final_threshold,
+            "type": "watchlist",
+        }
+
+    # 3. Process Notifications
+    for user_id, data in targets.items():
+        user = data["user"]
+        threshold = data["threshold"]
+        alert_type = data["type"]
+
+        if instance.stock <= threshold:
+            if user.email:
+                if alert_type == "watchlist":
+                    send_watchlist_low_stock_email(
+                        user, instance, instance.stock, threshold
+                    )
+                else:
+                    send_history_low_stock_email(
+                        user, instance, instance.stock, threshold
+                    )
 
 
-def send_low_stock_alert_email(user, product, stock, threshold):
-    """Send low stock alert email to a single user"""
-    subject = f"⚠️ Low Stock Alert: {product.name}"
+def send_watchlist_low_stock_email(user, product, stock, threshold):
+    """Send Watchlist specific low stock alert"""
+    subject = f"⚠️ Watchlist Alert: {product.name} Low Stock"
 
     message = f"""
 Hi {user.username},
@@ -263,9 +294,33 @@ Order now before it's gone!
 Visit Keanu's Candy Store: http://localhost:8000/candy/{product.id}/
 
 ---
-To manage your watchlist and notification preferences, visit your account page.
+To manage your watchlist, visit your account page.
 """
+    _send_email_safe(user, subject, message)
 
+
+def send_history_low_stock_email(user, product, stock, threshold):
+    """Send Purchase History specific low stock alert"""
+    subject = f"⚠️ Low Stock Alert: {product.name}"
+
+    message = f"""
+Hi {user.username},
+
+You previously purchased {product.name}, and it is running low on stock!
+
+Only {stock} left!
+
+Order now before it's gone!
+
+Visit Keanu's Candy Store: http://localhost:8000/candy/{product.id}/
+
+---
+To unsubscribe from these alerts, update your preferences in My Account.
+"""
+    _send_email_safe(user, subject, message)
+
+
+def _send_email_safe(user, subject, message):
     try:
         send_mail(
             subject,
@@ -275,42 +330,49 @@ To manage your watchlist and notification preferences, visit your account page.
             fail_silently=False,
         )
     except Exception as e:
-        # Log error but don't crash
         print(f"Failed to send email to {user.email}: {e}")
+
+
+@receiver(pre_save, sender=Candy)
+def track_candy_stock_change(sender, instance, **kwargs):
+    """
+    Track stock changes to determine if restock/low-stock events occurred.
+    """
+    if instance.pk:
+        try:
+            old_candy = Candy.objects.get(pk=instance.pk)
+            instance._old_stock = old_candy.stock
+        except Candy.DoesNotExist:
+            instance._old_stock = None
+    else:
+        instance._old_stock = None
 
 
 @receiver(post_save, sender=Candy)
 def check_and_send_restock_alerts(sender, instance, created, **kwargs):
     """
     Automatically send restock alerts when product stock is updated.
-    Checks for pending StockAlerts.
+    Sends to ALL users who have 'restock_email_alerts' enabled.
+    Only sends if stock went from 0 to > 0.
     """
-    if created or instance.stock <= 0:
+    if created:
         return
 
-    from .models import StockAlert
+    # Check previous stock
+    old_stock = getattr(instance, "_old_stock", None)
 
-    # Get pending alerts for this product
-    alerts = StockAlert.objects.filter(product=instance, notified=False).select_related(
-        "user", "user__preferences"
-    )
+    # Only fire if it was OOS and now has stock
+    if old_stock is not None and old_stock <= 0 and instance.stock > 0:
+        from django.contrib.auth import get_user_model
 
-    for alert in alerts:
-        # Check preferences
-        try:
-            preferences = alert.user.preferences
-            if not preferences.restock_email_alerts:
-                continue
-        except Exception:
-            continue
+        User = get_user_model()
 
-        if alert.user.email:
-            send_restock_alert_email(alert.user, instance)
+        # Find ALL users who want restock alerts
+        subscribers = User.objects.filter(preferences__restock_email_alerts=True)
 
-            # Mark as notified
-            alert.notified = True
-            alert.email_sent_at = timezone.now()
-            alert.save()
+        for user in subscribers:
+            if user.email:
+                send_restock_alert_email(user, instance)
 
 
 def send_restock_alert_email(user, product):
@@ -320,16 +382,14 @@ def send_restock_alert_email(user, product):
     message = f"""
 Hi {user.username},
 
-Good news! An item you requested is back in stock:
+A candy is back in stock!
 
   • {product.name} - {product.stock} available now!
 
-Order now before it sells out again!
-
-Visit Keanu's Candy Store: http://localhost:8000/candy/{product.id}/
+Order now: http://localhost:8000/candy/{product.id}/
 
 ---
-To manage your notifications, visit your account page.
+To unsubscribe from restock alerts, visit your account page.
 """
 
     try:

@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}User Management - Keanu's Candy Store{% endblock %}
+
+{% block content %}
+<style>
+    /* Responsive Table to Cards Transformation */
+    @media (max-width: 768px) {
+        .responsive-table thead {
+            display: none;
+        }
+
+        .responsive-table,
+        .responsive-table tbody,
+        .responsive-table tr,
+        .responsive-table td {
+            display: block;
+            width: 100%;
+        }
+
+        .responsive-table tr {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .responsive-table td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            text-align: right;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .responsive-table td:last-child {
+            border-bottom: none;
+            justify-content: flex-end;
+            /* Align actions to right */
+            padding-top: 1rem;
+        }
+
+        .responsive-table td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: #4b5563;
+            text-align: left;
+            margin-right: 1rem;
+        }
+
+        /* Hide the Action label for clearer button placement */
+        .responsive-table td[data-label="Actions"]::before {
+            display: none;
+        }
+    }
+</style>
+
+<div
+    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <h2>👥 User Management</h2>
+    <a href="{% url 'admin_dashboard' %}" class="btn" style="background-color: #6b7280;">← Back to Dashboard</a>
+</div>
+
+<div style="width: 100%;">
+    <table class="responsive-table"
+        style="width: 100%; border-collapse: separate; border-spacing: 0; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+        <thead>
+            <tr style="background-color: #f8f9fa;">
+                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6;">Username</th>
+                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6;">Email</th>
+                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6;">Role</th>
+                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6;">Joined On</th>
+                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user_acc in users %}
+            <tr>
+                <td data-label="Username" style="padding: 1rem; border-bottom: 1px solid #dee2e6; font-weight: 500;">
+                    {{ user_acc.username }}
+                    {% if user_acc == request.user %}
+                    <span
+                        style="font-size: 0.75rem; background: #e0e7ff; color: #4338ca; padding: 0.1rem 0.4rem; border-radius: 4px; margin-left: 0.5rem;">You</span>
+                    {% endif %}
+                </td>
+                <td data-label="Email" style="padding: 1rem; border-bottom: 1px solid #dee2e6; word-break: break-all;">
+                    {{ user_acc.email }}</td>
+                <td data-label="Role" style="padding: 1rem; border-bottom: 1px solid #dee2e6;">
+                    {% if user_acc.is_superuser %}
+                    <span
+                        style="background: #fee2e2; color: #991b1b; padding: 0.25rem 0.5rem; border-radius: 99px; font-size: 0.85rem; font-weight: 600;">Super
+                        Admin</span>
+                    {% elif user_acc.is_staff %}
+                    <span
+                        style="background: #fef3c7; color: #92400e; padding: 0.25rem 0.5rem; border-radius: 99px; font-size: 0.85rem; font-weight: 600;">Staff</span>
+                    {% else %}
+                    <span
+                        style="background: #f3f4f6; color: #374151; padding: 0.25rem 0.5rem; border-radius: 99px; font-size: 0.85rem;">Customer</span>
+                    {% endif %}
+                </td>
+                <td data-label="Joined On" style="padding: 1rem; border-bottom: 1px solid #dee2e6;">
+                    {{ user_acc.date_joined|date:"M d, Y" }}
+                </td>
+                <td data-label="Actions" style="padding: 1rem; border-bottom: 1px solid #dee2e6;">
+                    {% if user_acc != request.user %}
+                    <form action="{% url 'user_delete' user_acc.pk %}" method="POST"
+                        onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.');"
+                        style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn"
+                            style="background-color: #dc3545; padding: 0.4rem 0.8rem; font-size: 0.85rem;">Delete</button>
+                    </form>
+                    {% else %}
+                    <button class="btn" disabled
+                        style="background-color: #d1d5db; cursor: not-allowed; padding: 0.4rem 0.8rem; font-size: 0.85rem;">Delete</button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="padding: 2rem; text-align: center;">No users found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
