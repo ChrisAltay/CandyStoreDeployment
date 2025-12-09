@@ -5,7 +5,7 @@
 {% block content %}
 <style>
     :root {
-        --primary-color: #ff6b9d;
+        --primary-color: #2563eb;
         --secondary-color: #6c757d;
         --success-color: #10b981;
         --danger-color: #ef4444;
@@ -41,7 +41,7 @@
     }
 
     .welcome-card {
-        background: linear-gradient(135deg, var(--primary-color), #ff8fa3);
+        background: linear-gradient(135deg, #1e40af, #2563eb);
         color: white;
         padding: 2rem;
         border-radius: 12px;
@@ -264,11 +264,11 @@
 
     .btn-white {
         background: white;
-        color: var(--primary-color);
+        color: #2563eb;
     }
 
     .btn-white:hover {
-        background: #fdf2f8;
+        background: #eff6ff;
     }
 
     .btn-outline {
@@ -310,6 +310,83 @@
         background-color: #f8fafc;
         /* Light gray background for whole page */
     }
+
+    /* Mobile Responsiveness for Account Page */
+    @media (max-width: 768px) {
+        .account-container {
+            padding: 0 0.5rem;
+            margin: 1rem auto;
+        }
+
+        .welcome-card {
+            flex-direction: column;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .welcome-card>div:last-child {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .btn-white {
+            width: 100%;
+        }
+
+        .grid-layout {
+            grid-template-columns: 1fr !important;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+        }
+
+        .list-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .item-image {
+            width: 100%;
+            height: auto;
+            max-width: 150px;
+        }
+
+        .stock-input-group {
+            flex-wrap: wrap;
+        }
+
+        .candy-grid {
+            grid-template-columns: 1fr !important;
+        }
+
+        .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .welcome-card h2 {
+            font-size: 1.25rem !important;
+        }
+
+        .welcome-card p {
+            font-size: 0.9rem;
+        }
+
+        .section-title {
+            font-size: 1.1rem !important;
+        }
+
+        .btn-clean {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+    }
 </style>
 
 <div class="account-container">
@@ -332,7 +409,7 @@
             <div class="card-header">
                 <h3>👤 Profile Details</h3>
                 <a href="{% url 'password_change' %}"
-                    style="color: var(--primary-color); font-size: 0.9rem; text-decoration: none;">Change Password</a>
+                    style="color: #2563eb; font-size: 0.9rem; text-decoration: none;">Change Password</a>
             </div>
             <div class="card-body">
                 <form method="post" action="{% url 'update_profile' %}">
@@ -391,15 +468,31 @@
                 <div class="list-container">
                     {% for item in watchlist %}
                     <div class="list-item">
-                        {% if item.product.image_url %}
-                        <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="item-image">
+                        {% load static %}
+                        {% if item.product.name == "Caramel" %}
+                        <img src="{% static 'store/images/caramel.png' %}" alt="Caramel" class="item-image">
+                        {% elif item.product.name == "Chocolate Bar" %}
+                        <img src="{% static 'store/images/Chocolate_Bar.png' %}" alt="Chocolate Bar" class="item-image">
+                        {% elif item.product.name == "Dark Chocolate" %}
+                        <img src="{% static 'store/images/Dark_Chocolate.webp' %}" alt="Dark Chocolate"
+                            class="item-image">
+                        {% elif item.product.name == "Gummy Bears" %}
+                        <img src="{% static 'store/images/Gummy_Bears.webp' %}" alt="Gummy Bears" class="item-image">
+                        {% elif item.product.name == "Jelly Beans" %}
+                        <img src="{% static 'store/images/Jelly_Beans.jpg' %}" alt="Jelly Beans" class="item-image">
+                        {% elif item.product.name == "Lollipop" %}
+                        <img src="{% static 'store/images/Lollipop.webp' %}" alt="Lollipop" class="item-image">
+                        {% elif item.product.name == "Peppermint" %}
+                        <img src="{% static 'store/images/Peppermint.webp' %}" alt="Peppermint" class="item-image">
+                        {% elif item.product.name == "Sour Patch Kids" %}
+                        <img src="{% static 'store/images/SourPatch_kids.webp' %}" alt="Sour Patch Kids"
+                            class="item-image">
                         {% else %}
                         <div class="item-image">🍬</div>
                         {% endif %}
 
                         <div class="item-details">
-                            <a href="{% url 'candy_detail' item.product.id %}" class="item-name">{{ item.product.name
-                                }}</a>
+                            <a href="{% url 'candy_detail' item.product.id %}" class="item-name">{{ item.product.name }}</a>
                             <div class="item-meta">Current Stock: <strong>{{ item.product.stock }}</strong></div>
                         </div>
 
@@ -439,7 +532,7 @@
             <div class="card">
                 <div style="padding: 1rem; text-align: center;">
                     <h4 style="margin: 0.5rem 0;">{{ fav.candy.name }}</h4>
-                    <p style="color: var(--primary-color); font-weight: bold;">${{ fav.candy.price|floatformat:2 }}</p>
+                    <p style="color: #2563eb; font-weight: bold;">${{ fav.candy.price|floatformat:2 }}</p>
                     <div style="margin-top: 1rem; display: grid; gap: 0.5rem;">
                         <a href="{% url 'candy_detail' fav.candy.id %}" class="btn-clean btn-outline"
                             style="font-size: 0.9rem;">View</a>
@@ -478,7 +571,7 @@
                     <div
                         style="margin-top: 1rem; text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end;">
                         <a href="{% url 'review_edit' review.id %}"
-                            style="color: var(--primary-color); text-decoration: none; font-size: 0.9rem;">Edit</a>
+                            style="color: #2563eb; text-decoration: none; font-size: 0.9rem;">Edit</a>
                         <span style="color: #e5e7eb;">|</span>
                         <a href="{% url 'review_delete' review.id %}"
                             style="color: var(--danger-color); text-decoration: none; font-size: 0.9rem;">Delete</a>

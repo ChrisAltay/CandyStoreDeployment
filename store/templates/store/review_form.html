@@ -5,7 +5,7 @@
 {% block content %}
 <div
     style="max-width: 600px; margin: 0 auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-    <h2 style="margin-bottom: 2rem; color: #ff6b9d;">Edit Your Review</h2>
+    <h2 style="margin-bottom: 2rem; color: #2563eb;">Edit Your Review</h2>
 
     <form method="post">
         {% csrf_token %}
@@ -18,9 +18,10 @@
             {{ form.comment }}
         </div>
 
-        <div style="margin-top: 2rem;">
-            <button type="submit" class="btn">Update Review</button>
-            <a href="{% url 'account' %}" class="btn btn-secondary" style="margin-left: 1rem;">Cancel</a>
+        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+            <button type="submit" class="btn" style="flex: 1; padding: 0.75rem 1.5rem;">Update Review</button>
+            <a href="{% url 'account' %}" class="btn btn-secondary"
+                style="flex: 1; padding: 0.75rem 1.5rem; text-align: center; display: inline-flex; align-items: center; justify-content: center;">Cancel</a>
         </div>
     </form>
 </div>
