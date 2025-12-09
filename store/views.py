@@ -277,6 +277,24 @@ def cancel_order(request, order_id):
     return redirect("order_detail", order_id=order.id)
 
 
+@require_POST
+@login_required(login_url="login")
+def delete_order(request, order_id):
+    """Delete an order from history"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    order_number = order.id
+
+    # Delete the order (this will cascade delete OrderItems)
+    order.delete()
+
+    messages.success(
+        request,
+        f"Order #{order_number} has been deleted from your order history.",
+    )
+
+    return redirect("order_history")
+
+
 @login_required(login_url="login")
 def reorder(request, order_id):
     """Copy all items from a previous order to the cart"""

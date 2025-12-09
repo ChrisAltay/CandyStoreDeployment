@@ -187,15 +187,158 @@
         box-shadow: none;
     }
 
-    /* Responsive */
+    /* Mobile Responsive - Overlay Above Forms */
     @media (max-width: 768px) {
         .auth-container {
-            min-height: 800px;
+            min-height: auto;
+            max-width: 95%;
+            margin: 1rem auto;
+            display: flex;
             flex-direction: column;
         }
 
-        /* Mobile logic requires more complex CSS or JS override, 
-           keeping it simple for now as requested for specific "sliding" effect which implies desktop-ish view */
+        /* Forms positioned below overlay */
+        .form-container {
+            position: relative;
+            width: 100%;
+            height: auto;
+            min-height: 320px;
+            padding: 1.5rem 1.5rem;
+            transform: none !important;
+            order: 2;
+        }
+
+        .sign-in-container {
+            z-index: 2;
+            opacity: 1;
+        }
+
+        .sign-up-container {
+            opacity: 0;
+            z-index: 1;
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        /* When sign-up is active */
+        .auth-container.right-panel-active .sign-in-container {
+            opacity: 0;
+            z-index: 1;
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .auth-container.right-panel-active .sign-up-container {
+            opacity: 1;
+            z-index: 2;
+            position: relative;
+            pointer-events: auto;
+        }
+
+        /* Overlay container - positioned ABOVE forms */
+        .overlay-container {
+            position: relative;
+            width: 100%;
+            height: auto;
+            left: 0;
+            transform: none !important;
+            order: 1;
+            z-index: 3;
+        }
+
+        .overlay {
+            position: relative;
+            left: 0;
+            width: 100%;
+            height: auto;
+            transform: none !important;
+        }
+
+        .overlay-panel {
+            position: relative;
+            width: 100%;
+            height: auto;
+            padding: 1.5rem 1.5rem;
+            min-height: 180px;
+            transform: none !important;
+        }
+
+        .overlay-left,
+        .overlay-right {
+            transform: none !important;
+        }
+
+        /* Show overlay-right by default (over sign-in) */
+        .overlay-right {
+            display: block;
+        }
+
+        .overlay-left {
+            display: none;
+        }
+
+        /* When sign-up is active, show overlay-left (over sign-up) */
+        .auth-container.right-panel-active .overlay-right {
+            display: none;
+        }
+
+        .auth-container.right-panel-active .overlay-left {
+            display: block;
+        }
+
+        /* Smaller form elements */
+        h1 {
+            font-size: 1.5rem;
+        }
+
+        input {
+            padding: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        button {
+            padding: 0.75rem 2.5rem;
+            font-size: 0.9rem;
+        }
+
+        .ghost {
+            padding: 0.65rem 2rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .auth-container {
+            margin: 0.5rem auto;
+            border-radius: 8px;
+        }
+
+        .form-container {
+            padding: 1.25rem 1rem;
+            min-height: 280px;
+        }
+
+        .overlay-panel {
+            padding: 1.25rem 1rem;
+            min-height: 180px;
+        }
+
+        h1 {
+            font-size: 1.25rem;
+        }
+
+        input {
+            padding: 0.65rem;
+            font-size: 0.85rem;
+        }
+
+        button {
+            padding: 0.65rem 2rem;
+            font-size: 0.85rem;
+        }
     }
 </style>
 
@@ -224,6 +367,9 @@
             <input type="hidden" name="next" value="{{ request.GET.next }}">
             {% endif %}
             <button class="btn btn-primary" style="margin-top: 1rem;">Sign In</button>
+            <a href="{% url 'password_reset' %}"
+                style="display: block; margin-top: 0.75rem; font-size: 0.85rem; color: #6b7280; text-decoration: none;">Forgot
+                Password?</a>
         </form>
     </div>
 

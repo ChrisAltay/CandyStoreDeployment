@@ -26,7 +26,7 @@
             background-color: #1e40af;
             /* Blue 800 */
             color: white;
-            padding: 1rem 2rem;
+            padding: 0.5rem 2rem;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             /* Floating effect */
             display: flex;
@@ -89,27 +89,75 @@
             padding: 0 2rem;
         }
 
+        /* Toast Notification Styles */
         .messages {
-            margin: 1rem 0;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+            /* Allow clicking through if needed */
         }
 
         .messages li {
-            list-style: none;
-            padding: 1rem;
-            margin: 0.5rem 0;
-            border-radius: 0.5rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-weight: 500;
+            animation: slideIn 0.3s ease-out forwards;
+            pointer-events: auto;
+            min-width: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
         }
 
         .messages .success {
             background-color: #d1fae5;
             color: #065f46;
-            border: 1px solid #a7f3d0;
+            border-left: 5px solid #10b981;
         }
 
         .messages .error {
             background-color: #fee2e2;
             color: #991b1b;
-            border: 1px solid #fecaca;
+            border-left: 5px solid #ef4444;
+        }
+
+        .messages .info {
+            background-color: #eff6ff;
+            color: #1e40af;
+            border-left: 5px solid #3b82f6;
+        }
+
+        .messages .warning {
+            background-color: #fffbeb;
+            color: #92400e;
+            border-left: 5px solid #f59e0b;
         }
 
         /* Default Button Styles (Generic) */
@@ -152,16 +200,29 @@
         .candy-card {
             background: white;
             border-radius: 0.75rem;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            /* More shadow initially */
+            padding: 0;
+            box-shadow: 0 6px 10px -1px rgba(0, 0, 0, 0.15), 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            /* Darker shadow */
             transition: transform 0.2s, box-shadow 0.2s;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
         }
 
         .candy-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            /* Deep shadow on hover */
+            box-shadow: 0 25px 35px -5px rgba(0, 0, 0, 0.15), 0 15px 15px -5px rgba(0, 0, 0, 0.08);
+            /* Deeper shadow on hover */
+        }
+
+        .candy-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            margin-bottom: 0;
+            display: block;
         }
 
         .candy-card h3 {
@@ -173,14 +234,38 @@
         .candy-card .price {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #059669;
-            /* Green 600 */
+            color: #2563eb;
+            /* Blue 600 */
             margin: 0.5rem 0;
         }
 
         .candy-card .stock {
             color: #6b7280;
             font-size: 0.875rem;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-grow: 1;
+            box-sizing: border-box;
+            background: white;
+        }
+
+        .card-actions {
+            margin-top: auto;
+            width: 100%;
+            display: flex;
+            gap: 0.75rem;
+            padding-top: 1rem;
+        }
+
+        .add-to-cart-form {
+            flex: 1;
+            display: flex;
         }
 
         .form-group {
@@ -249,128 +334,51 @@
             position: relative;
             display: flex;
             align-items: center;
+            background: white;
+            border-radius: 999px;
+            padding: 0.25rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .search-input {
             padding: 0.5rem 1rem;
             border-radius: 999px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+            border: none;
+            background: white;
+            color: #374151;
             font-size: 0.9rem;
-            width: 250px;
+            width: 350px;
             transition: all 0.2s;
+            outline: none;
         }
 
         .search-input::placeholder {
-            color: #bfdbfe;
+            color: #9ca3af;
         }
 
         .search-input:focus {
             outline: none;
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.4);
-            width: 300px;
         }
 
-        /* Datalist styling */
-        option {
-            background: white;
-            color: #333;
-        }
-
-        /* Hero Banner Styles */
-        .hero-banner {
-            background-image: url('{% static "store/images/candywall1.jpg" %}');
-            background-size: cover;
-            background-position: center;
-            height: 300px;
-            border-radius: 12px;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .hero-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 10;
-            text-align: center;
+        .search-button {
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
             color: white;
-            padding: 1rem;
+            border: none;
+            border-radius: 999px;
+            padding: 0.5rem 1.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
         }
 
-        .hero-content h2 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            margin: 0;
-            color: white;
+        .search-button:hover {
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+            transform: scale(1.02);
         }
 
-        .page-subtitle {
-            text-align: center;
-            font-size: 1.25rem;
-            color: #4b5563;
-            margin-bottom: 2rem;
-        }
-
-        /* Candy Card Updates */
-        .candy-card {
-            padding: 0;
-            /* Override previous padding */
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-
-        .candy-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            margin-bottom: 0;
-            display: block;
-        }
-
-        .card-content {
-            padding: 1.5rem;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex-grow: 1;
-            box-sizing: border-box;
-            background: white;
-        }
-
-        .card-actions {
-            margin-top: auto;
-            width: 100%;
-            display: flex;
-            gap: 0.75rem;
-            padding-top: 1rem;
-        }
-
-        .add-to-cart-form {
-            flex: 1;
-            display: flex;
-        }
-
-        /* Animation Styles */
+        /* Wrapper Animation Styles */
         #candy-wrapper {
             position: fixed;
             top: 0;
@@ -448,27 +456,426 @@
             /* Grow on hover */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
+
+        /* Discount Bar Styles */
+        .discount-bar {
+            background: linear-gradient(135deg, #1e40af, #2563eb);
+            color: white;
+            text-align: center;
+            padding: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .discount-bar:hover {
+            background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+        }
+
+        .discount-bar:hover .discount-text {
+            text-decoration: underline;
+        }
+
+        .discount-bar:hover .arrow {
+            transform: translateX(5px);
+        }
+
+        .discount-text {
+            display: inline;
+            transition: text-decoration 0.2s ease;
+        }
+
+        .arrow {
+            display: inline-block;
+            margin-left: 0.5rem;
+            transition: transform 0.3s ease;
+            font-size: 1rem;
+        }
+
+
+        /* ========================================
+           MOBILE RESPONSIVENESS
+           ======================================== */
+
+        /* Hamburger Menu Styles */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 0.5rem;
+            z-index: 1001;
+            width: 40px;
+            height: 40px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 3px 0;
+            transition: 0.3s;
+            border-radius: 3px;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(-45deg) translate(-5px, 6px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(45deg) translate(-5px, -6px);
+        }
+
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(135deg, #1e40af, #2563eb);
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            padding: 5rem 1.5rem 2rem;
+            overflow-y: auto;
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .mobile-menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .mobile-nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .mobile-nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 1rem;
+            border-radius: 8px;
+            transition: background 0.2s;
+            font-weight: 500;
+        }
+
+        .mobile-nav-links a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-user-info {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .mobile-user-info span {
+            color: #dbeafe;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .mobile-user-info a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Tablet and below (768px) */
+        @media (max-width: 768px) {
+
+            /* Show hamburger, hide desktop nav */
+            .hamburger {
+                display: flex;
+            }
+
+            .mobile-menu,
+            .mobile-menu-overlay {
+                display: block;
+            }
+
+            .nav,
+            .user-info {
+                display: none !important;
+            }
+
+            /* Header adjustments */
+            .header {
+                padding: 0.75rem 1rem;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .header>div:first-child {
+                gap: 1rem !important;
+                flex: 1;
+            }
+
+            .logo {
+                height: 45px;
+                width: 45px;
+                transition: none !important;
+            }
+
+            .logo:hover {
+                transform: none !important;
+            }
+
+            /* Search bar - make smaller */
+            .search-container {
+                width: auto;
+                max-width: none;
+                padding: 0.2rem;
+                flex-shrink: 1;
+            }
+
+            .search-input {
+                width: 140px !important;
+                font-size: 0.8rem;
+                padding: 0.35rem 0.6rem !important;
+            }
+
+            .search-button {
+                padding: 0.35rem 0.7rem;
+                font-size: 0.7rem;
+            }
+
+            /* Container */
+            .container {
+                padding: 0 0.75rem;
+                margin: 1rem auto;
+            }
+
+            /* Images - make smaller */
+            img {
+                max-width: 100%;
+                height: auto;
+            }
+
+            .candy-image {
+                height: 150px !important;
+            }
+
+            /* Forms - make smaller and full width */
+            input[type="text"],
+            input[type="email"],
+            input[type="password"],
+            input[type="number"],
+            textarea,
+            select {
+                font-size: 16px !important;
+                /* Prevents zoom on iOS */
+                padding: 0.6rem !important;
+                width: 100% !important;
+            }
+
+            .form-group {
+                margin-bottom: 1rem;
+            }
+
+            /* Candy grid - make smaller */
+            .candy-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+                gap: 0.6rem;
+            }
+
+            .candy-card {
+                font-size: 0.85rem;
+            }
+
+            .candy-card h3 {
+                font-size: 1rem;
+                line-height: 1.3;
+            }
+
+            .candy-card p {
+                font-size: 0.8rem;
+                line-height: 1.4;
+            }
+
+            .candy-card .price {
+                font-size: 1.1rem;
+            }
+
+            .candy-card .stock {
+                font-size: 0.75rem;
+            }
+
+            .card-content {
+                padding: 0.75rem;
+            }
+
+            .card-actions {
+                flex-direction: row;
+                gap: 0.5rem;
+            }
+
+            .btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.85rem;
+            }
+
+            .glossy-btn {
+                font-size: 0.8rem !important;
+                padding: 0.5rem 0.9rem !important;
+            }
+
+            /* Tables */
+            table {
+                font-size: 0.85rem;
+            }
+
+            table th,
+            table td {
+                padding: 0.5rem;
+            }
+
+            /* Footer */
+            footer {
+                padding: 2rem 1rem 1rem !important;
+            }
+
+            footer>div>div:first-child {
+                grid-template-columns: 1fr !important;
+                gap: 1.5rem !important;
+            }
+
+            /* Messages/Toasts */
+            .messages {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+
+            .messages li {
+                min-width: auto;
+                font-size: 0.85rem;
+            }
+
+            /* Discount bar */
+            .discount-bar {
+                font-size: 0.7rem;
+                padding: 0.4rem;
+            }
+
+            .arrow {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Mobile phones (480px and below) */
+        @media (max-width: 480px) {
+
+            /* Even smaller adjustments */
+            .header {
+                padding: 0.4rem 0.5rem;
+            }
+
+            .logo {
+                height: 40px;
+                width: 40px;
+            }
+
+            .nav {
+                font-size: 0.85rem;
+            }
+
+            .candy-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .candy-card {
+                max-width: 100%;
+            }
+
+            .page-title,
+            h1 {
+                font-size: 1.5rem !important;
+            }
+
+            h2 {
+                font-size: 1.25rem !important;
+            }
+
+            h3 {
+                font-size: 1.1rem !important;
+            }
+
+            .btn {
+                font-size: 0.85rem;
+                padding: 0.5rem;
+            }
+
+            /* Search */
+            .search-button {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.75rem;
+            }
+
+            /* Footer text */
+            footer h3 {
+                font-size: 1.1rem !important;
+            }
+
+            footer h4 {
+                font-size: 0.95rem !important;
+            }
+
+            footer p,
+            footer a,
+            footer li {
+                font-size: 0.85rem !important;
+            }
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 
 <body>
-    <div class="discount-bar">
-        🎉 Free $0 shipping on all orders this month!
+    <div class="discount-bar" onclick="scrollToCandies()">
+        <span class="discount-text">Free shipping on all orders $1.99+ this month! SHOP NOW</span>
+        <span class="arrow">→</span>
     </div>
     <div class="header">
         <div style="display: flex; align-items: center; gap: 2rem;">
             <a href="{% url 'home' %}">
                 <img src="{% static 'store/images/Logo.webp' %}" alt="Keanu's Candy Store" class="logo">
             </a>
-            <!-- Search Bar -->
-            <div class="search-container">
-                <input type="text" id="candySearch" class="search-input" placeholder="Search candies..."
-                    list="candyList">
-                <datalist id="candyList">
-                    <!-- Populated by JS in home.html -->
-                </datalist>
-            </div>
+            <!-- Search Bar Block -->
+            {% block header_search %}{% endblock %}
         </div>
 
         <nav class="nav">
@@ -510,21 +917,214 @@
             </a>
             {% endif %}
         </div>
+
+        <!-- Hamburger Menu Button -->
+        <div class="hamburger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
     </div>
 
-    <div class="container">
-        {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-            <li class="{{ message.tags }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
 
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <div class="mobile-nav-links">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'cart_detail' %}">
+                🛒 Cart
+                {% with cart_count=cart|length %}
+                {% if cart_count %}
+                <span
+                    style="background: white; color: #1e40af; padding: 0.1rem 0.4rem; border-radius: 999px; font-size: 0.8em; margin-left: 4px;">
+                    {{ cart_count }}
+                </span>
+                {% endif %}
+                {% endwith %}
+            </a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'account' %}">My Account</a>
+            {% endif %}
+        </div>
+
+        <div class="mobile-user-info">
+            {% if user.is_authenticated %}
+            <span>Hello, {{ user.username }}!</span>
+            <a href="{% url 'logout' %}">Logout</a>
+            {% else %}
+            <a href="{% url 'login' %}">Login / Register</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Move messages OUTSIDE container to avoid width constraints -->
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li class="{{ message.tags }}">
+            {{ message }}
+            <span style="cursor:pointer; margin-left:10px; font-size: 1.2em;"
+                onclick="this.parentElement.remove()">&times;</span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <div class="container">
         {% block content %}{% endblock %}
     </div>
 
+    <script>
+        // Auto-dismiss toasts
+        document.addEventListener('DOMContentLoaded', () => {
+            const messages = document.querySelectorAll('.messages li');
+            messages.forEach(msg => {
+                setTimeout(() => {
+                    msg.style.transition = 'all 0.5s ease';
+                    msg.style.opacity = '0';
+                    msg.style.transform = 'translateY(-20px)';
+                    setTimeout(() => msg.remove(), 500);
+                }, 4000); // 4 seconds before disappearing
+            });
+        });
+
+        // Smooth scroll to candy section
+        function scrollToCandies() {
+            // Check if we're on the home page
+            const candySection = document.getElementById('candy-section');
+            if (candySection) {
+                // We're on home page, just scroll
+                candySection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            } else {
+                // We're on a different page, redirect to home with hash
+                window.location.href = '{% url "home" %}#candy-section';
+            }
+        }
+
+        // Toggle mobile menu
+        function toggleMobileMenu() {
+            const hamburger = document.querySelector('.hamburger');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const overlay = document.querySelector('.mobile-menu-overlay');
+
+            hamburger.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+            overlay.classList.toggle('active');
+
+            // Prevent body scroll when menu is open
+            if (mobileMenu.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+    </script>
     {% block extra_js %}{% endblock %}
+
+    <!-- Footer -->
+    <footer
+        style="background: linear-gradient(135deg, #1e40af, #2563eb); color: white; margin-top: 4rem; padding: 3rem 2rem 1.5rem; font-family: 'Inter', system-ui, sans-serif;">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <div
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+                <!-- Company Info -->
+                <div>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">KeanU Candy Store</h3>
+                    <p style="font-size: 0.9rem; line-height: 1.6; opacity: 0.9;">Your one-stop shop for the finest
+                        selection of candies, chocolates, and sweet treats. Quality and satisfaction guaranteed!</p>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem;">Quick Links</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="margin-bottom: 0.5rem;"><a href="{% url 'home' %}"
+                                style="color: white; text-decoration: none; opacity: 0.9; font-size: 0.9rem; transition: opacity 0.2s;"
+                                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.9'">Home</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="{% url 'cart_detail' %}"
+                                style="color: white; text-decoration: none; opacity: 0.9; font-size: 0.9rem; transition: opacity 0.2s;"
+                                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.9'">Shopping
+                                Cart</a></li>
+                        {% if user.is_authenticated %}
+                        <li style="margin-bottom: 0.5rem;"><a href="{% url 'account' %}"
+                                style="color: white; text-decoration: none; opacity: 0.9; font-size: 0.9rem; transition: opacity 0.2s;"
+                                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.9'">My
+                                Account</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="{% url 'order_history' %}"
+                                style="color: white; text-decoration: none; opacity: 0.9; font-size: 0.9rem; transition: opacity 0.2s;"
+                                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.9'">Order
+                                History</a></li>
+                        {% else %}
+                        <li style="margin-bottom: 0.5rem;"><a href="{% url 'login' %}"
+                                style="color: white; text-decoration: none; opacity: 0.9; font-size: 0.9rem; transition: opacity 0.2s;"
+                                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.9'">Login /
+                                Register</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- Customer Service -->
+                <div>
+                    <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem;">Customer Service</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="margin-bottom: 0.5rem;"><a href="#"
+                                style="color: white; text-decoration: none; opacity: 0.9; font-size: 0.9rem; transition: opacity 0.2s;"
+                                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.9'">Contact
+                                Us</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="#"
+                                style="color: white; text-decoration: none; opacity: 0.9; font-size: 0.9rem; transition: opacity 0.2s;"
+                                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.9'">Shipping
+                                Information</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="#"
+                                style="color: white; text-decoration: none; opacity: 0.9; font-size: 0.9rem; transition: opacity 0.2s;"
+                                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.9'">Returns &
+                                Refunds</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="#"
+                                style="color: white; text-decoration: none; opacity: 0.9; font-size: 0.9rem; transition: opacity 0.2s;"
+                                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.9'">FAQ</a></li>
+                    </ul>
+                </div>
+
+                <!-- Legal -->
+                <div>
+                    <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem;">Legal</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="margin-bottom: 0.5rem;"><a href="#"
+                                style="color: white; text-decoration: none; opacity: 0.9; font-size: 0.9rem; transition: opacity 0.2s;"
+                                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.9'">Privacy
+                                Policy</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="#"
+                                style="color: white; text-decoration: none; opacity: 0.9; font-size: 0.9rem; transition: opacity 0.2s;"
+                                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.9'">Terms of
+                                Service</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="#"
+                                style="color: white; text-decoration: none; opacity: 0.9; font-size: 0.9rem; transition: opacity 0.2s;"
+                                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.9'">Cookie
+                                Policy</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="#"
+                                style="color: white; text-decoration: none; opacity: 0.9; font-size: 0.9rem; transition: opacity 0.2s;"
+                                onmouseover="this.style.opacity='1'"
+                                onmouseout="this.style.opacity='0.9'">Accessibility</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Copyright Bar -->
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.2); padding-top: 1.5rem; text-align: center;">
+                <p style="font-size: 0.85rem; opacity: 0.8; margin: 0;">
+                    © 2024 KeanU Candy Store. All rights reserved. | Kean University
+                </p>
+                <p style="font-size: 0.75rem; opacity: 0.7; margin: 0.5rem 0 0 0;">
+                    Made with ❤️ for candy lovers everywhere
+                </p>
+            </div>
+        </div>
+    </footer>
 </body>
 
 </html>

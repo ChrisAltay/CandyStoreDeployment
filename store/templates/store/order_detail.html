@@ -215,6 +215,27 @@
     .truck-icon {
         /* inherited from JS divIcon style, ensuring visibility */
     }
+
+    /* Animated glowing dashed line */
+    @keyframes dash-glow {
+        0% {
+            stroke-dashoffset: 0;
+            opacity: 0.5;
+        }
+
+        50% {
+            opacity: 0.8;
+        }
+
+        100% {
+            stroke-dashoffset: -20;
+            opacity: 0.5;
+        }
+    }
+
+    .leaflet-pane path.animated-route {
+        animation: dash-glow 2s linear infinite;
+    }
 </style>
 
 <div class="max-w-4xl mx-auto py-8">
@@ -355,10 +376,25 @@
         {% for item in order.items.all %}
         <li class="item-row">
             <div class="item-info">
-                {% if item.product.image_url %}
-                <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="item-img">
+                {% load static %}
+                {% if item.product.name == "Caramel" %}
+                <img src="{% static 'store/images/caramel.png' %}" alt="Caramel" class="item-img">
+                {% elif item.product.name == "Chocolate Bar" %}
+                <img src="{% static 'store/images/Chocolate_Bar.png' %}" alt="Chocolate Bar" class="item-img">
+                {% elif item.product.name == "Dark Chocolate" %}
+                <img src="{% static 'store/images/Dark_Chocolate.webp' %}" alt="Dark Chocolate" class="item-img">
+                {% elif item.product.name == "Gummy Bears" %}
+                <img src="{% static 'store/images/Gummy_Bears.webp' %}" alt="Gummy Bears" class="item-img">
+                {% elif item.product.name == "Jelly Beans" %}
+                <img src="{% static 'store/images/Jelly_Beans.jpg' %}" alt="Jelly Beans" class="item-img">
+                {% elif item.product.name == "Lollipop" %}
+                <img src="{% static 'store/images/Lollipop.webp' %}" alt="Lollipop" class="item-img">
+                {% elif item.product.name == "Peppermint" %}
+                <img src="{% static 'store/images/Peppermint.webp' %}" alt="Peppermint" class="item-img">
+                {% elif item.product.name == "Sour Patch Kids" %}
+                <img src="{% static 'store/images/SourPatch_kids.webp' %}" alt="Sour Patch Kids" class="item-img">
                 {% else %}
-                <div class="item-placeholder">No Img</div>
+                <div class="item-placeholder">🍬</div>
                 {% endif %}
                 <div>
                     <h3 style="font-size: 1.125rem; font-weight: 500; color: #111827; margin: 0 0 0.25rem 0;">
@@ -399,8 +435,8 @@
         });
 
         const orderId = "{{ order.id }}";
-        const factoryCoords = [40.7128, -74.0060];
-        const destCoords = [42.3601, -71.0589];
+        const factoryCoords = [40.6698, -74.2107]; // Kean University, Elizabeth (Union County), NJ
+        const destCoords = [40.6976, -74.2632]; // 1000 Morris Avenue, Union, NJ 07083
 
         // Map Init
         var map = L.map('tracking-map').setView(factoryCoords, 6);
@@ -413,14 +449,20 @@
         var destMarker = L.marker(destCoords).addTo(map).bindPopup('Delivery Address');
         var truckIcon = L.divIcon({
             className: 'truck-icon',
-            html: '<div style="background-color: #10b981; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.3);"></div>',
+            html: '<div style="background-color: #3b82f6; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);"></div>',
             iconSize: [16, 16]
         });
 
         let truckMarker = null;
 
         var latlngs = [factoryCoords, destCoords];
-        var polyline = L.polyline(latlngs, { color: '#3b82f6', opacity: 0.5, dashArray: '10, 10' }).addTo(map);
+        var polyline = L.polyline(latlngs, {
+            color: '#3b82f6',
+            weight: 3,
+            opacity: 0.7,
+            dashArray: '10, 10',
+            className: 'animated-route'
+        }).addTo(map);
         map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
 
         function formatTime(isoString) {

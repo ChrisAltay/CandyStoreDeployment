@@ -3,13 +3,39 @@
 {% block title %}Order Created - Keanu's Candy Store{% endblock %}
 
 {% block content %}
-<div class="container" style="text-align: center; padding: 3rem;">
-    <h1 style="color: #ff6b9d;">Thank you for your order!</h1>
-    <p style="font-size: 1.2rem; margin: 1rem 0;">Your order <strong>#{{ order.id }}</strong> has been successfully created.</p>
-    <p>Total: ${{ order.total_price }}</p>
-    
-    <div style="margin-top: 2rem;">
-        <a href="{% url 'home' %}" class="btn" style="padding: 0.75rem 1.5rem; font-size: 1.1rem;">Continue Shopping</a>
+<div class="container" style="max-width: 600px; margin: 3rem auto; text-align: center;">
+    <div
+        style="background: white; padding: 2.5rem 2rem; border-radius: 10px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <!-- Success Icon -->
+        <div style="margin-bottom: 1.5rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none"
+                stroke="#1e40af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                style="margin: 0 auto; display: block;">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+        </div>
+
+        <h1 style="color: #1e40af; font-size: 1.75rem; margin-bottom: 1rem;">Thank You for Your Order!</h1>
+        <p style="font-size: 1.1rem; margin: 1rem 0; color: #4b5563;">
+            Your order <strong style="color: #1e40af;">#{{ order.id }}</strong> has been successfully placed.
+        </p>
+
+        <div
+            style="background: #eff6ff; padding: 1rem; border-radius: 8px; margin: 1.5rem 0; border-left: 4px solid #2563eb;">
+            <p style="color: #374151; margin: 0; font-size: 1rem;">
+                Order Total: <strong style="color: #1e40af; font-size: 1.25rem;">${{ order.total_price }}</strong>
+            </p>
+        </div>
+
+        <p style="color: #6b7280; font-size: 0.95rem; margin-bottom: 2rem;">
+            We'll send you a confirmation email shortly.
+        </p>
+
+        <div style="display: flex; gap: 0.75rem; justify-content: center;">
+            <a href="{% url 'home' %}" class="btn" style="padding: 0.6rem 1.5rem;">Continue Shopping</a>
+            <a href="{% url 'account' %}" class="btn btn-secondary" style="padding: 0.6rem 1.5rem;">View Orders</a>
+        </div>
     </div>
 </div>
 {% endblock %}

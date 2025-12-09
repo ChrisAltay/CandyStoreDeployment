@@ -24,6 +24,7 @@ urlpatterns = [
         name="order_status_api",
     ),
     path("orders/<int:order_id>/cancel/", views.cancel_order, name="cancel_order"),
+    path("orders/<int:order_id>/delete/", views.delete_order, name="delete_order"),
     path("orders/<int:order_id>/reorder/", views.reorder, name="reorder"),
     path(
         "orders/<int:order_id>/invoice/",

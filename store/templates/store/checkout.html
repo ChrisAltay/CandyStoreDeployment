@@ -2,72 +2,287 @@
 
 {% block title %}Checkout - Keanu's Candy Store{% endblock %}
 
+{% block extra_css %}
+<style>
+    @media (max-width: 768px) {
+        .checkout-container {
+            max-width: 100% !important;
+            padding: 0 1rem !important;
+        }
+
+        .checkout-form {
+            padding: 1.25rem !important;
+        }
+
+        h2 {
+            font-size: 1.5rem !important;
+        }
+
+        h4 {
+            font-size: 1rem !important;
+        }
+
+        .form-row {
+            flex-direction: column !important;
+            gap: 1rem !important;
+        }
+
+        .form-group {
+            width: 100% !important;
+        }
+
+        input,
+        select {
+            font-size: 1rem !important;
+        }
+
+        .payment-option {
+            padding: 0.75rem !important;
+        }
+
+        button {
+            padding: 0.75rem !important;
+            font-size: 1rem !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        h2 {
+            font-size: 1.25rem !important;
+        }
+
+        .checkout-form {
+            padding: 1rem !important;
+        }
+
+        button {
+            padding: 0.6rem !important;
+            font-size: 0.9rem !important;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div style="max-width: 600px; margin: 0 auto;">
-    <h2 style="text-align: center; margin-bottom: 1.5rem;">Secure Checkout</h2>
+    <h2 style="text-align: center; margin-bottom: 1.5rem; color: #1e40af; font-size: 1.75rem;">Secure Checkout</h2>
 
-    <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-        <h4 style="margin-bottom: 1rem; color: #6c757d;">Order Summary</h4>
-        <div style="margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #dee2e6;">
-            <p style="margin-bottom: 0.5rem;">Total Items: <strong>{{ cart|length }}</strong></p>
-            <p style="font-size: 1.25rem; font-weight: bold; color: #28a745;">Total Price: ${{ cart.get_total_price }}
-            </p>
+    <div
+        style="background: white; padding: 1.75rem; border-radius: 10px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <!-- Order Summary Section -->
+        <h4
+            style="margin-bottom: 1rem; color: #374151; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem; font-size: 1.1rem;">
+            Order Summary</h4>
+        <div style="margin-bottom: 1.5rem;">
+            <div
+                style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; color: #4b5563; font-size: 0.95rem;">
+                <span>Total Items:</span>
+                <strong>{{ cart|length }}</strong>
+            </div>
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; font-weight: bold; color: #111827;">
+                <span>Total to Pay:</span>
+                <span style="color: #1e40af;">${{ cart.get_total_price }}</span>
+            </div>
         </div>
 
         <form method="post">
             {% csrf_token %}
 
-            <h4 style="margin-bottom: 1rem;">Shipping & Payment</h4>
-            {% for field in form %}
-            <div style="margin-bottom: 1.5rem;">
-                <label for="{{ field.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">
-                    {{ field.label }}
+            <!-- Payment Method Visual Selection -->
+            <h4 style="margin-bottom: 0.75rem; color: #374151; font-size: 1.1rem;">Payment Method</h4>
+            <div class="payment-options">
+                <label class="payment-card">
+                    <input type="radio" name="payment_method_visual" value="visa" checked>
+                    <div class="card-content">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="lucide lucide-credit-card">
+                            <rect width="20" height="14" x="2" y="5" rx="2" />
+                            <line x1="2" x2="22" y1="10" y2="10" />
+                        </svg>
+                        <span>Visa / Credit Card</span>
+                    </div>
                 </label>
-                {{ field }}
-                {% if field.help_text %}
-                <small style="color: #6c757d; display: block; margin-top: 0.25rem;">{{ field.help_text }}</small>
-                {% endif %}
-                {% if field.errors %}
-                <div style="color: #dc3545; font-size: 0.875rem; margin-top: 0.25rem;">
-                    {{ field.errors }}
-                </div>
-                {% endif %}
+                <label class="payment-card">
+                    <input type="radio" name="payment_method_visual" value="debit">
+                    <div class="card-content">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="lucide lucide-wallet">
+                            <path
+                                d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" />
+                            <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" />
+                        </svg>
+                        <span>Debit Card</span>
+                    </div>
+                </label>
             </div>
-            {% endfor %}
 
-            <div style="margin-top: 2rem; display: flex; gap: 1rem;">
-                <button type="submit" class="btn" style="background-color: #28a745; width: 100%;">Complete
-                    Order</button>
-                <a href="{% url 'cart_detail' %}" class="btn"
-                    style="background-color: #6c757d; padding: 0.75rem 1.5rem;">Back to Cart</a>
+            <!-- Django Form Fields -->
+            <h4 style="margin-bottom: 0.75rem; color: #374151; margin-top: 1.5rem; font-size: 1.1rem;">Shipping Details
+            </h4>
+            <div style="display: grid; gap: 1rem;">
+                {% for field in form %}
+                <div class="form-group-modern">
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+                    {{ field }}
+                    {% if field.help_text %}
+                    <small>{{ field.help_text }}</small>
+                    {% endif %}
+                    {% if field.errors %}
+                    <div class="error-msg">
+                        {{ field.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div style="margin-top: 2rem; display: flex; gap: 0.75rem; flex-direction: column-reverse; sm:flex-row;">
+                <a href="{% url 'cart_detail' %}" class="btn btn-secondary"
+                    style="width: 100%; text-align: center; background-color: #6b7280; padding: 0.6rem;">Back to
+                    Cart</a>
+                <button type="submit" class="btn" style="width: 100%; padding: 0.6rem;">Complete Order</button>
             </div>
         </form>
     </div>
 </div>
 
 <style>
-    /* Basic styling for form fields */
-    input[type="text"],
-    input[type="number"],
-    input[type="url"],
-    textarea,
-    select {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        font-size: 1rem;
-        box-sizing: border-box;
+    /* Payment Options Styling */
+    .payment-options {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
     }
 
-    input[type="text"]:focus,
-    input[type="number"]:focus,
-    input[type="url"]:focus,
-    textarea:focus,
-    select:focus {
-        border-color: #ff6b9d;
-        outline: 0;
-        box-shadow: 0 0 0 0.2rem rgba(255, 107, 157, 0.25);
+    .payment-card {
+        flex: 1;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .payment-card input {
+        position: absolute;
+        opacity: 0;
+    }
+
+    .payment-card .card-content {
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+        color: #4b5563;
+        font-weight: 500;
+    }
+
+    .payment-card input:checked+.card-content {
+        border-color: #2563eb;
+        background-color: #eff6ff;
+        color: #1e40af;
+    }
+
+    .payment-card:hover .card-content {
+        border-color: #bfdbfe;
+    }
+
+    /* Modern Form Styling */
+    .form-group-modern label {
+        display: block;
+        margin-bottom: 0.25rem;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.9rem;
+    }
+
+    .form-group-modern input,
+    .form-group-modern textarea,
+    .form-group-modern select {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+        background-color: #f9fafb;
+    }
+
+    .form-group-modern input:focus,
+    .form-group-modern textarea:focus,
+    .form-group-modern select:focus {
+        border-color: #2563eb;
+        background-color: white;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-group-modern small {
+        color: #6b7280;
+        display: block;
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+    }
+
+    .error-msg {
+        color: #dc2626;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    @media (min-width: 640px) {
+        .btn-group {
+            flex-direction: row;
+        }
+
+        .btn-group .btn {
+            width: auto;
+            flex: 1;
+        }
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Find the card number input field
+        const cardInputs = document.querySelectorAll('input[type="text"]');
+        let cardNumberInput = null;
+
+        // Find the card number field by checking labels or names
+        cardInputs.forEach(input => {
+            const label = input.previousElementSibling;
+            if (label && label.textContent.includes('Card Number')) {
+                cardNumberInput = input;
+            }
+        });
+
+        if (cardNumberInput) {
+            cardNumberInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\s/g, ''); // Remove all spaces
+                value = value.replace(/\D/g, ''); // Remove non-digits
+                value = value.substring(0, 16); // Limit to 16 digits
+
+                // Add space every 4 digits
+                let formattedValue = '';
+                for (let i = 0; i < value.length; i++) {
+                    if (i > 0 && i % 4 === 0) {
+                        formattedValue += ' ';
+                    }
+                    formattedValue += value[i];
+                }
+
+                e.target.value = formattedValue;
+            });
+
+            // Add placeholder
+            cardNumberInput.placeholder = '1234 5678 9012 3456';
+        }
+    });
+</script>
 {% endblock %}
