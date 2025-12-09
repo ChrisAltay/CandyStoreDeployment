@@ -189,3 +189,39 @@ def update_watchlist_threshold(request, product_id):
             messages.error(request, "Please enter a valid number")
 
     return redirect("account")
+
+
+from django.contrib.auth.views import PasswordChangeView
+from django.core.mail import send_mail
+from django.conf import settings
+
+
+class CustomPasswordChangeView(PasswordChangeView):
+    def form_valid(self, form):
+        # Call the parent class's form_valid method to actually change the password
+        response = super().form_valid(form)
+
+        # Send confirmation email
+        try:
+            subject = "Password Changed Successfully"
+            message = f"""
+Hi {self.request.user.username},
+
+Your password for Keanu's Candy Store was successfully changed.
+
+If you did not perform this change, please contact us immediately.
+
+Thanks,
+The Keanu's Candy Store Team
+"""
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [self.request.user.email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            print(f"Failed to send password change email: {e}")
+
+        return response
