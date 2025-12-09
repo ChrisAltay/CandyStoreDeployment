@@ -22,7 +22,7 @@ class CheckoutForm(forms.Form):
         help_text="For testing, use any 16 digit number",
     )
     expiry = forms.CharField(max_length=5, label="Expiry (MM/YY)", initial="12/26")
-    cvv = forms.CharField(max_length=4, label="CVV")
+    cvv = forms.CharField(max_length=3, label="CVV")
 
 
 class ReviewForm(forms.ModelForm):

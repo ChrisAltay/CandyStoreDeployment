@@ -246,23 +246,30 @@
     </div>
 
     <!-- Action Buttons -->
-    <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
-        {% if order.status == 'Created' %}
-        <button id="cancel-btn" onclick="showCancelModal()"
-            style="padding: 0.75rem 1.5rem; background-color: #ef4444; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;">
-            Cancel Order
-        </button>
-        {% endif %}
+    <div
+        style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            {% if order.status == 'Created' %}
+            <button id="cancel-btn" onclick="showCancelModal()"
+                style="padding: 0.75rem 1.5rem; background-color: #ef4444; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;">
+                Cancel Order
+            </button>
+            {% endif %}
 
-        <a href="{% url 'reorder' order.id %}"
-            style="padding: 0.75rem 1.5rem; background-color: #10b981; color: white; border: none; border-radius: 6px; font-weight: 600; text-decoration: none; display: inline-block; transition: background-color 0.2s;">
-            Reorder
-        </a>
+            <a href="{% url 'reorder' order.id %}"
+                style="padding: 0.75rem 1.5rem; background-color: #10b981; color: white; border: none; border-radius: 6px; font-weight: 600; text-decoration: none; display: inline-block; transition: background-color 0.2s;">
+                Reorder
+            </a>
 
-        <a href="{% url 'download_invoice' order.id %}"
-            style="padding: 0.75rem 1.5rem; background-color: #4f46e5; color: white; border: none; border-radius: 6px; font-weight: 600; text-decoration: none; display: inline-block; transition: background-color 0.2s;">
-            Download Invoice
-        </a>
+            <a href="{% url 'download_invoice' order.id %}"
+                style="padding: 0.75rem 1.5rem; background-color: #4f46e5; color: white; border: none; border-radius: 6px; font-weight: 600; text-decoration: none; display: inline-block; transition: background-color 0.2s;">
+                Download Invoice
+            </a>
+        </div>
+
+        {% load static %}
+        <img src="{% static 'store/images/CougarTrackLogo.png' %}" alt="Cougar Track"
+            style="height: 110px; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));">
     </div>
 
     <!-- Cancel Confirmation Modal -->
