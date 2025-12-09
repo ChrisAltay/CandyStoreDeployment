@@ -3,98 +3,497 @@
 {% block title %}My Account - Keanu's Candy Store{% endblock %}
 
 {% block content %}
-<div style="max-width: 800px; margin: 0 auto;">
-    <h2>🍬 My Account</h2>
-    <div
-        style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 2rem;">
-        <p><strong>Username:</strong> {{ user.username }}</p>
-        <p><strong>Email:</strong> {{ user.email|default:"Not provided" }}</p>
+<style>
+    :root {
+        --primary-color: #ff6b9d;
+        --secondary-color: #6c757d;
+        --success-color: #10b981;
+        --danger-color: #ef4444;
+        --bg-card: #ffffff;
+        --text-main: #1f2937;
+        --text-muted: #6b7280;
+        --border-color: #e5e7eb;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .account-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .welcome-card {
+        background: linear-gradient(135deg, var(--primary-color), #ff8fa3);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: var(--shadow-md);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .welcome-text h2 {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+
+    .welcome-text p {
+        margin: 0.5rem 0 0;
+        opacity: 0.9;
+    }
+
+    .grid-layout {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .card {
+        background: var(--bg-card);
+        border-radius: 12px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        transition: box-shadow 0.2s;
+    }
+
+    .card:hover {
+        box-shadow: var(--shadow-md);
+    }
+
+    .card-header {
+        padding: 1.25rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-header h3 {
+        margin: 0;
+        font-size: 1.125rem;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-icon {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: background 0.2s;
+    }
+
+    .btn-icon:hover {
+        background: #f3f4f6;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 500;
+        color: var(--text-main);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        font-size: 0.95rem;
+    }
+
+    .toggle-group {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .toggle-item {
+        background: #f9fafb;
+        padding: 1rem;
+        border-radius: 8px;
+    }
+
+    .toggle-label {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 600;
+        color: var(--text-main);
+        cursor: pointer;
+    }
+
+    .toggle-desc {
+        margin: 0.25rem 0 0 1.75rem;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        color: var(--text-main);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* List Styles */
+    .list-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .list-item {
+        background: var(--bg-card);
+        border-radius: 8px;
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .item-image {
+        width: 64px;
+        height: 64px;
+        border-radius: 8px;
+        object-fit: cover;
+        background: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .item-details {
+        flex: 1;
+    }
+
+    .item-name {
+        font-weight: 600;
+        color: var(--text-main);
+        text-decoration: none;
+        font-size: 1.1rem;
+    }
+
+    .item-meta {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+    }
+
+    .item-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .stock-input-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #f3f4f6;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+    }
+
+    .stock-input {
+        width: 60px;
+        padding: 2px 4px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        text-align: center;
+    }
+
+    /* Standard Buttons */
+    .btn-clean {
+        padding: 0.6rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        filter: brightness(110%);
+    }
+
+    .btn-white {
+        background: white;
+        color: var(--primary-color);
+    }
+
+    .btn-white:hover {
+        background: #fdf2f8;
+    }
+
+    .btn-outline {
+        border: 1px solid var(--border-color);
+        background: white;
+        color: var(--text-main);
+    }
+
+    .btn-outline:hover {
+        border-color: var(--text-muted);
+    }
+
+    .btn-danger-ghost {
+        background: transparent;
+        color: var(--danger-color);
+        padding: 0.4rem;
+    }
+
+    .btn-danger-ghost:hover {
+        background: #fef2f2;
+    }
+
+    .candy-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        background: #f9fafb;
+        border-radius: 12px;
+        color: var(--text-muted);
+        border: 2px dashed var(--border-color);
+    }
+
+    body {
+        background-color: #f8fafc;
+        /* Light gray background for whole page */
+    }
+</style>
+
+<div class="account-container">
+
+    <!-- Welcome Banner -->
+    <div class="welcome-card">
+        <div class="welcome-text">
+            <h2>Welcome back, {{ user.username }}! 👋</h2>
+            <p>{{ user.email|default:"Manage your account settings" }}</p>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            <a href="{% url 'order_history' %}" class="btn-clean btn-white">📦 My Orders</a>
+            <a href="{% url 'home' %}" class="btn-clean btn-white">🍬 Browse Shop</a>
+        </div>
     </div>
 
-    <div
-        style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center;">
-        <p style="font-size: 1.1rem; color: #6c757d; margin-bottom: 1rem;">Welcome to your account page!</p>
-        <a href="{% url 'order_history' %}" class="btn" style="background-color: #6c757d; margin-right: 1rem;">View My
-            Orders 📦</a>
-        <a href="{% url 'home' %}" class="btn">Browse Candies 🍬</a>
+    <div class="grid-layout">
+        <!-- 1. Profile Settings -->
+        <div class="card">
+            <div class="card-header">
+                <h3>👤 Profile Details</h3>
+                <a href="{% url 'password_change' %}"
+                    style="color: var(--primary-color); font-size: 0.9rem; text-decoration: none;">Change Password</a>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'update_profile' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label>Username</label>
+                        {{ profile_form.username }}
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        {{ profile_form.email }}
+                    </div>
+                    <button type="submit" class="btn-clean btn-primary" style="width: 100%;">Update Profile</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 2. Notification Preferences -->
+        <div class="card">
+            <div class="card-header">
+                <h3>🔔 Notifications</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'update_preferences' %}">
+                    {% csrf_token %}
+                    <div class="toggle-group">
+                        <div class="toggle-item">
+                            <label class="toggle-label">
+                                {{ preferences_form.low_stock_email_alerts }}
+                                <span>Low Stock Alerts</span>
+                            </label>
+                            <p class="toggle-desc">Get emailed when items on your watchlist run low.</p>
+                        </div>
+                        <div class="toggle-item">
+                            <label class="toggle-label">
+                                {{ preferences_form.restock_email_alerts }}
+                                <span>Restock Alerts</span>
+                            </label>
+                            <p class="toggle-desc">Get emailed when out-of-stock items return.</p>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-clean btn-primary"
+                        style="width: 100%; margin-top: 1.5rem; background-color: var(--success-color);">Save
+                        Preferences</button>
+                </form>
+            </div>
+        </div>
     </div>
 
-    <div style="margin-top: 3rem;">
-        <h3 style="color: #ff6b9d; margin-bottom: 1.5rem;">❤️ My Favorite Candies</h3>
+    <!-- 3. Watchlist -->
+    <div style="margin-bottom: 3rem;">
+        <h2 class="section-title">👀 My Watchlist</h2>
+        <div class="card">
+            <div class="card-body">
+                {% if watchlist %}
+                <div class="list-container">
+                    {% for item in watchlist %}
+                    <div class="list-item">
+                        {% if item.product.image_url %}
+                        <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="item-image">
+                        {% else %}
+                        <div class="item-image">🍬</div>
+                        {% endif %}
+
+                        <div class="item-details">
+                            <a href="{% url 'candy_detail' item.product.id %}" class="item-name">{{ item.product.name
+                                }}</a>
+                            <div class="item-meta">Current Stock: <strong>{{ item.product.stock }}</strong></div>
+                        </div>
+
+                        <form method="post" action="{% url 'update_watchlist_threshold' item.product.id %}"
+                            class="stock-input-group">
+                            {% csrf_token %}
+                            <span style="font-size: 0.8rem; color: #666;">Alert at:</span>
+                            <input type="number" name="threshold" value="{{ item.custom_threshold|default:3 }}" min="1"
+                                class="stock-input">
+                            <button type="submit" class="btn-icon" title="Save threshold">💾</button>
+                        </form>
+
+                        <form method="post" action="{% url 'remove_from_watchlist' item.product.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-danger-ghost" title="Remove">❌</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <p>Your watchlist is empty.</p>
+                    <p style="font-size: 0.9rem;">Items are no longer auto-added. Add items manually from their details
+                        page!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Favorites -->
+    <div style="margin-bottom: 3rem;">
+        <h2 class="section-title">❤️ My Favorites</h2>
         {% if favorites %}
         <div class="candy-grid">
             {% for fav in favorites %}
-            <div class="candy-card">
-                <h3>{{ fav.candy.name }}</h3>
-                <p class="price">${{ fav.candy.price|floatformat:2 }}</p>
-                <p class="stock">In Stock: {{ fav.candy.stock }}</p>
-
-
-                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                    {% if fav.candy.stock > 0 %}
-                    <form action="{% url 'cart_add' fav.candy.id %}" method="post" style="flex: 1;">
-                        {% csrf_token %}
-                        <input type="hidden" name="quantity" value="1">
-                        <button type="submit" class="btn" style="width: 100%;">
-                            Order 🛒
-                        </button>
-                    </form>
-                    {% else %}
-                    <button class="btn btn-secondary" disabled style="flex: 1; cursor: not-allowed; opacity: 0.7;">
-                        Out of Stock
-                    </button>
-                    {% endif %}
-
-                    <button class="btn btn-secondary remove-fav-btn" data-candy-id="{{ fav.candy.id }}"
-                        style="background-color: #dc3545; color: white; border: none; padding: 0.5rem;">
-                        🗑️
-                    </button>
-                </div>
-
-                <div style="margin-top: 0.5rem; text-align: center;">
-                    <a href="{% url 'candy_detail' fav.candy.id %}"
-                        style="color: #ff6b9d; text-decoration: none; font-size: 0.9rem;">View Details</a>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <p style="text-align: center; color: #666; background: white; padding: 2rem; border-radius: 8px;">
-            You haven't favorited any candies yet. <a href="{% url 'home' %}" style="color: #ff6b9d;">Go explore!</a>
-        </p>
-        {% endif %}
-    </div>
-
-    <div style="margin-top: 3rem;">
-        <h3 style="color: #ff6b9d; margin-bottom: 1.5rem;">📝 My Reviews</h3>
-        {% if reviews %}
-        <div style="display: grid; gap: 1rem;">
-            {% for review in reviews %}
-            <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                    <div>
-                        <h4 style="margin-bottom: 0.5rem;"><a href="{% url 'candy_detail' review.candy.id %}"
-                                style="color: #333; text-decoration: none;">{{ review.candy.name }}</a></h4>
-                        <span style="color: #ffc107;">{{ review.rating }} ⭐</span>
+            <div class="card">
+                <div style="padding: 1rem; text-align: center;">
+                    <h4 style="margin: 0.5rem 0;">{{ fav.candy.name }}</h4>
+                    <p style="color: var(--primary-color); font-weight: bold;">${{ fav.candy.price|floatformat:2 }}</p>
+                    <div style="margin-top: 1rem; display: grid; gap: 0.5rem;">
+                        <a href="{% url 'candy_detail' fav.candy.id %}" class="btn-clean btn-outline"
+                            style="font-size: 0.9rem;">View</a>
+                        <button class="btn-danger-ghost remove-fav-btn" data-candy-id="{{ fav.candy.id }}"
+                            style="border: 1px solid #fee2e2;">Remove</button>
                     </div>
                 </div>
-                <p style="margin-top: 1rem;">{{ review.comment }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            No favorite candies yet. Go find some tasty treats! 🍭
+        </div>
+        {% endif %}
+    </div>
 
-                <div style="margin-top: 1rem; text-align: right;">
-                    <a href="{% url 'review_edit' review.id %}" class="btn btn-secondary"
-                        style="font-size: 0.9rem;">Edit</a>
-                    <a href="{% url 'review_delete' review.id %}" class="btn"
-                        style="background-color: #dc3545; font-size: 0.9rem;">Delete</a>
+    <!-- 5. Reviews -->
+    <div>
+        <h2 class="section-title">📝 My Reviews</h2>
+        {% if reviews %}
+        <div class="list-container">
+            {% for review in reviews %}
+            <div class="card">
+                <div class="card-body">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <h4 style="margin: 0;">
+                            <a href="{% url 'candy_detail' review.candy.id %}"
+                                style="color: var(--text-main); text-decoration: none;">
+                                {{ review.candy.name }}
+                            </a>
+                        </h4>
+                        <span style="color: #fbbf24; font-weight: bold;">{{ review.rating }} ⭐</span>
+                    </div>
+                    <p style="color: var(--text-muted); line-height: 1.5;">{{ review.comment }}</p>
+                    <div
+                        style="margin-top: 1rem; text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end;">
+                        <a href="{% url 'review_edit' review.id %}"
+                            style="color: var(--primary-color); text-decoration: none; font-size: 0.9rem;">Edit</a>
+                        <span style="color: #e5e7eb;">|</span>
+                        <a href="{% url 'review_delete' review.id %}"
+                            style="color: var(--danger-color); text-decoration: none; font-size: 0.9rem;">Delete</a>
+                    </div>
                 </div>
             </div>
             {% endfor %}
         </div>
         {% else %}
-        <p style="text-align: center; color: #666; background: white; padding: 2rem; border-radius: 8px;">
-            You haven't left any reviews yet.
-        </p>
+        <div class="empty-state">
+            You haven't reviewed any candies yet.
+        </div>
         {% endif %}
     </div>
+
 </div>
 
 <script>
@@ -103,9 +502,8 @@
         removeBtns.forEach(btn => {
             btn.addEventListener('click', function () {
                 if (!confirm('Remove from favorites?')) return;
-
                 const candyId = this.dataset.candyId;
-                const card = this.closest('.candy-card');
+                const card = this.closest('.card'); // Changed from .candy-card to .card
 
                 fetch(`/favorite/toggle/${candyId}/`, {
                     method: 'POST',

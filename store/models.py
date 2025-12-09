@@ -164,3 +164,64 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.rating}* by {self.user.username} for {self.candy.name}"
+
+
+class ProductWatchlist(models.Model):
+    """
+    Tracks products a user is watching.
+    Used for low stock alerts.
+    """
+
+    user = models.ForeignKey(
+        "auth.User", on_delete=models.CASCADE, related_name="watchlist"
+    )
+    product = models.ForeignKey(
+        Candy, on_delete=models.CASCADE, related_name="watchers"
+    )
+    # Flag to distinguish between manually added items and auto-added from orders
+    auto_added = models.BooleanField(default=False)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    # Custom low stock threshold for this specific item (overrides global pref)
+    custom_threshold = models.IntegerField(null=True, blank=True)
+
+    # Track last notification to prevent spam (e.g., don't email every 5 mins)
+    last_notified = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ("user", "product")
+
+    def __str__(self):
+        return f"{self.user.username} watching {self.product.name}"
+
+
+class StockAlert(models.Model):
+    """
+    Tracks one-time requests for 'Back in Stock' notifications.
+    Automatically created when user requests alert for out-of-stock item.
+    """
+
+    user = models.ForeignKey(
+        "auth.User", on_delete=models.CASCADE, related_name="stock_alerts"
+    )
+    product = models.ForeignKey(
+        Candy, on_delete=models.CASCADE, related_name="stock_alerts"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    notified = models.BooleanField(default=False)
+    email_sent_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        # A user only needs one active alert per product
+        # If notified=True, they can request another one later (new row or update existing)
+        # For simplicity, we enforce unique active alerts
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "product"],
+                condition=models.Q(notified=False),
+                name="unique_active_alert",
+            )
+        ]
+
+    def __str__(self):
+        return f"Restock Alert: {self.user.username} - {self.product.name}"
