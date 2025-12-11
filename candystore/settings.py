@@ -94,10 +94,6 @@ STATIC_URL = "/static/"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# This only applies if you have a /static folder in the root of project
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
 
 # WhiteNoise storage for compressed/minified static files
 STORAGES = {
@@ -105,10 +101,6 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     }
 }
-
-# Media files (optional – required if product images use ImageField)
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
 
 # Login redirects
 LOGIN_URL = "/accounts/login/"
