@@ -39,7 +39,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # REQUIRED for static files on Railway
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # only once, near the top
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -47,8 +47,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "candystore.middleware.NoCacheMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",   # <-- add this
 ]
+
 
 ROOT_URLCONF = "candystore.urls"
 
