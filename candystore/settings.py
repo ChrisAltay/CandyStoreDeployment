@@ -47,6 +47,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "candystore.middleware.NoCacheMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",   # <-- add this
 ]
 
 ROOT_URLCONF = "candystore.urls"
