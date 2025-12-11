@@ -29,7 +29,9 @@ SECRET_KEY = "django-insecure-xppf8wl@5g2y3&2-074&9@t8mw2&j(!mvi8pv03c&jr6yqe8f&
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".up.railway.app"]  # Needed for deployment
+
+CSRF_TRUSTED_ORIGINS = ["https://*.up.railway.app"]  # Needed for deployment
 
 
 # Application definition
@@ -123,6 +125,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = "static/"
+
+STATIC_ROOT = BASE_DIR / "staticfiles"  # Needed for deployment
 
 # Login URLs
 LOGIN_URL = "/accounts/login/"
